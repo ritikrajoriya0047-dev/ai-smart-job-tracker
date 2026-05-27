@@ -1,10 +1,10 @@
-# 🚀 AI-Powered Smart Job Tracker
+# AI-Powered Smart Job Tracker
 
 > A Python-based backend application that helps students and job seekers manage, organize, track, and analyze job applications using REST APIs, PostgreSQL, resume parsing, AI recommendations, and export functionalities.
 
 ---
 
-## 📌 Problem Statement
+## Problem Statement
 
 Managing multiple job applications manually is chaotic and inefficient. Critical information — company details, application status, interview progress, referrals, resumes, and job links — ends up scattered across spreadsheets, emails, and sticky notes.
 
@@ -18,9 +18,9 @@ The **AI-Powered Smart Job Tracker** solves this by providing a unified backend 
 
 ---
 
-## ✅ Planned Features
+## Planned Features
 
-### 🔹 Core Features
+### Core Features
 - Add, update, delete, and manage job applications (full CRUD)
 - Track application status: `Applied` → `Interview` → `Selected` / `Rejected`
 - Store company details, salary range, location, and application date
@@ -28,19 +28,19 @@ The **AI-Powered Smart Job Tracker** solves this by providing a unified backend 
 - Fetch live job listings from public job APIs
 - Persist all data in a PostgreSQL database
 
-### 🔹 Advanced Features
+### Advanced Features
 
 | Feature | Description |
 |---|---|
-| 📄 Resume Parser | Upload resumes and extract skills, experience, keywords, and technologies |
-| 🤖 AI Recommendations | Match jobs to resume skills and user interests using keyword-based logic |
-| 📊 Analytics Module | Track total applications, interview ratio, rejections, and success rate |
-| 📁 Export System | Export job records as CSV or PDF |
-| 🤝 Referral Tracker | Store referral contacts, recruiter details, and referral status |
+|  Resume Parser | Upload resumes and extract skills, experience, keywords, and technologies |
+|  AI Recommendations | Match jobs to resume skills and user interests using keyword-based logic |
+|  Analytics Module | Track total applications, interview ratio, rejections, and success rate |
+|  Export System | Export job records as CSV or PDF |
+|  Referral Tracker | Store referral contacts, recruiter details, and referral status |
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Category | Technology |
 |---|---|
@@ -52,7 +52,7 @@ The **AI-Powered Smart Job Tracker** solves this by providing a unified backend 
 | Environment Config | Python-dotenv |
 | Code Editor | VS Code |
 
-### 📚 Python Libraries
+### Python Libraries
 
 | Library | Purpose |
 |---|---|
@@ -65,7 +65,7 @@ The **AI-Powered Smart Job Tracker** solves this by providing a unified backend 
 
 ---
 
-## 🔌 APIs / Tools Required
+## APIs / Tools Required
 
 ### External APIs
 
@@ -86,21 +86,21 @@ The **AI-Powered Smart Job Tracker** solves this by providing a unified backend 
 
 ---
 
-## 📤 Expected Output
+## Expected Output
 
 A fully functional Python backend where users can:
 
-- ✅ Add and manage job applications via console or REST endpoints
-- ✅ Fetch real-time job listings from multiple job APIs
-- ✅ Upload and parse resumes to extract key skills
-- ✅ Receive basic AI-powered job recommendations
-- ✅ View analytics: total applied, interview rate, rejection rate
-- ✅ Export application data to `.csv` or `.pdf`
-- ✅ Track referrals and recruiter contacts
+-  Add and manage job applications via console or REST endpoints
+-  Fetch real-time job listings from multiple job APIs
+-  Upload and parse resumes to extract key skills
+-  Receive basic AI-powered job recommendations
+-  View analytics: total applied, interview rate, rejection rate
+-  Export application data to `.csv` or `.pdf`
+-  Track referrals and recruiter contacts
 
 ---
 
-## 🔄 Basic Flow / Architecture
+## Basic Flow / Architecture
 
 ```
                         User
@@ -156,7 +156,7 @@ smart-job-tracker/
 
 ---
 
-## 🧠 Key Learning Outcomes
+## Key Learning Outcomes
 
 - Designing scalable Python backend architectures
 - PostgreSQL schema design and CRUD operations
