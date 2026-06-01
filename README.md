@@ -156,6 +156,20 @@ smart-job-tracker/
 
 ---
 
+## Business Use Cases & Case Studies
+
+This platform is designed to solve real-world job application tracking, placement management, and recruitment challenges across different domains.
+
+| # | Business Type | Problem | Solution Provided | Modules Used |
+|---|--------------|----------|------------------|--------------|
+| 1 | University Placement Cells | Tracking hundreds of student applications across multiple companies every semester. | Monitor application status per student, identify skill gaps, and generate placement reports for accreditation. | Resume Parser, Analytics Dashboard, Export Module |
+| 2 | Recruitment Agencies | Managing candidate pipelines for multiple clients using scattered spreadsheets. | Centralized candidate tracking, automatic resume-job matching, and pipeline health monitoring. | Job Fetcher, AI Recommendations, Referral Tracker |
+| 3 |  Individual Job Seekers | Applying to dozens of companies without visibility into outcomes and progress. | Single dashboard for applications, interview tracking, and personal career analytics. | Application CRUD, Analytics Dashboard, Resume Parser |
+| 4 | Coding Bootcamps | Reporting placement outcomes to investors without an automated system. | Cohort-level placement analytics, skill benchmarking, and automated report generation. | Analytics Dashboard, Export Module, Job Fetcher |
+| 5 | Corporate HR / Internal Mobility | Matching employees with internal opportunities without external hiring. | Resume parsing, internal role recommendations, and referral tracking. | Resume Parser, AI Recommendations, Referral Tracker |
+
+---
+
 ## Key Learning Outcomes
 
 - Designing scalable Python backend architectures
@@ -167,3 +181,4 @@ smart-job-tracker/
 - Professional GitHub workflow and documentation
 
 ---
+
