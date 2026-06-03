@@ -161,7 +161,7 @@ smart-job-tracker/
 
 ---
 
-## Business Use Cases & Case Studies
+## Business Use Cases 
 
 This platform is designed to solve real-world job application tracking, placement management, and recruitment challenges across different domains.
 
