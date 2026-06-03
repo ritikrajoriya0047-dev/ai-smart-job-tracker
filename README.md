@@ -28,7 +28,9 @@ The **AI-Powered Smart Job Tracker** solves this by providing a unified backend 
 - Fetch live job listings from public job APIs
 - Persist all data in a PostgreSQL database
 
-### 🚀 Advanced Features
+---
+
+### Advanced Features
 
 | Feature                          | Description                                                                                                                                     |
 | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
