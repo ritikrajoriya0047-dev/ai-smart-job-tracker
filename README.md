@@ -184,3 +184,4 @@ This platform is designed to solve real-world job application tracking, placemen
 - Professional GitHub workflow and documentation
 
 ---
+
