@@ -28,15 +28,18 @@ The **AI-Powered Smart Job Tracker** solves this by providing a unified backend 
 - Fetch live job listings from public job APIs
 - Persist all data in a PostgreSQL database
 
-### Advanced Features
+### 🚀 Advanced Features
 
-| Feature | Description |
-|---|---|
-|  Resume Parser | Upload resumes and extract skills, experience, keywords, and technologies |
-|  AI Recommendations | Match jobs to resume skills and user interests using keyword-based logic |
-|  Analytics Module | Track total applications, interview ratio, rejections, and success rate |
-|  Export System | Export job records as CSV or PDF |
-|  Referral Tracker | Store referral contacts, recruiter details, and referral status |
+| Feature                          | Description                                                                                                                                     |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Resume Parser                 | Upload resumes and automatically extract skills, experience, education, keywords, and technologies.                                             |
+| AI Recommendations            | Match jobs with resume skills and user interests using keyword-based recommendation logic.                                                      |
+| Analytics Module              | Track total applications, interviews, rejections, offers, and overall success rate through an analytics dashboard.                              |
+| Export System                 | Export application records, reports, and analytics data as CSV or PDF files.                                                                    |
+| Referral Tracker              | Manage recruiter contacts, employee referrals, referral status, and networking information.                                                     |
+| Job Application Notes History | Maintain a complete history of notes, interview feedback, follow-ups, and status updates for every job application.                             |
+| Search & Filter Dashboard     | Search applications by company name, Status, or Sources(like Linkedin ,Naukri etc.) and filter them by application status for faster access and better organization.    |
+| Application Success Predictor | Analyze historical application data and predict the likelihood of receiving interviews or offers using analytics and machine learning concepts. |
 
 ---
 
