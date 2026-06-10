@@ -19,3 +19,18 @@ class JobResponse(JobCreate):
 
     class Config:
         from_attributes = True
+
+class ReferralCreate(BaseModel):
+    name:    str
+    company: Optional[str] = None
+    linkedin:Optional[str] = None
+    email:   Optional[str] = None
+    status:  Optional[str] = "Pending"
+    notes:   Optional[str] = None
+
+class ReferralResponse(ReferralCreate):
+    id:         int
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True

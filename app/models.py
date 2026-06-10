@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey
 from sqlalchemy.sql import func
 from app.database import Base
+
 class Job(Base):
     __tablename__ = "jobs"
 
@@ -24,3 +25,15 @@ class StatusHistory(Base):
     old_status = Column(String(50))
     new_status = Column(String(50))
     changed_at = Column(DateTime, server_default=func.now())
+
+class Referral(Base):
+    __tablename__ = "referrals"
+
+    id         = Column(Integer, primary_key=True, index=True)
+    name       = Column(String(100), nullable=False)
+    company    = Column(String(100))
+    linkedin   = Column(String(200))
+    email      = Column(String(100))
+    status     = Column(String(50), default="Pending")
+    notes      = Column(String(500))
+    created_at = Column(DateTime, server_default=func.now())
