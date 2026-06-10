@@ -8,6 +8,7 @@ from app.routers.analytics import router as analytics_router
 from app.routers.search import router as search_router
 from app.routers.resume import router as resume_router
 from app.routers.referral import router as referral_router
+from app.routers.recommend import router as recommend_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -24,6 +25,7 @@ app.include_router(analytics_router)
 app.include_router(search_router)
 app.include_router(resume_router)
 app.include_router(referral_router)
+app.include_router(recommend_router)
 
 @app.get("/")
 def root():
