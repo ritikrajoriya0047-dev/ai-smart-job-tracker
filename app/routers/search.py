@@ -46,4 +46,4 @@ def search_jobs(q: str, location: str = "india", results: int = 10):
         "location":    location,
         "total_found": data.get("count", 0),
         "results":     jobs
-    }
+    } 
