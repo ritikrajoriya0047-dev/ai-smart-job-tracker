@@ -6,6 +6,7 @@ class Job(Base):
     __tablename__ = "jobs"
 
     id           = Column(Integer, primary_key=True, index=True)
+    user_id      = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     company      = Column(String(100), nullable=False)
     role         = Column(String(100), nullable=False)
     status       = Column(String(50), default="Applied")
@@ -36,4 +37,21 @@ class Referral(Base):
     email      = Column(String(100))
     status     = Column(String(50), default="Pending")
     notes      = Column(String(500))
+    created_at = Column(DateTime, server_default=func.now())
+
+class NoteHistory(Base):
+    __tablename__ = "note_history"
+
+    id         = Column(Integer, primary_key=True, index=True)
+    job_id     = Column(Integer, ForeignKey("jobs.id", ondelete="CASCADE"))
+    note       = Column(String(1000), nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
+
+class User(Base):
+    __tablename__ = "users"
+
+    id         = Column(Integer, primary_key=True, index=True)
+    name       = Column(String(100), nullable=False)
+    email      = Column(String(100), unique=True, nullable=False)
+    password   = Column(String(200), nullable=False)
     created_at = Column(DateTime, server_default=func.now())

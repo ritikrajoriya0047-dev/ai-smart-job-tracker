@@ -21,11 +21,13 @@ def create_job(job: schemas.JobCreate, db: Session = Depends(get_db)):
 
 @router.get("/")
 def get_jobs(
+    user_id: Optional[int] = Query(None),
     status:  Optional[str] = Query(None),
     company: Optional[str] = Query(None),
     db: Session = Depends(get_db)
 ):
     q = db.query(Job)
+    if user_id: q = q.filter(Job.user_id == user_id)
     if status:  q = q.filter(Job.status == status)
     if company: q = q.filter(Job.company.ilike(f"%{company}%"))
     return q.order_by(Job.created_at.desc()).all()
@@ -72,3 +74,4 @@ def delete_job(job_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+

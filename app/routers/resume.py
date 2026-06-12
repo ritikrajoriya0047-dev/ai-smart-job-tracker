@@ -8,8 +8,11 @@ SKILLS = [
     "rest api", "git", "docker", "linux", "pandas", "numpy", "matplotlib",
     "machine learning", "data analysis", "javascript", "html", "css",
     "aws", "azure", "google cloud", "mongodb", "redis", "kafka",
-    "java", "c++", "react", "node.js", "typescript", "postman",
-    "sqlalchemy", "pydantic", "uvicorn", "requests", "api"
+    "java", "c++", "c", "react", "node.js", "typescript", "excel", "power bi",
+    "tableau", "scikit-learn", "tensorflow", "keras", "opencv", "nlp",
+    "salesforce", "dsa", "data structures", "algorithms", "problem solving",
+    "object oriented", "oops", "mysql", "firebase", "postman", "github",
+    "computer science", "engineering", "api", "backend", "frontend"
 ]
 
 @router.post("/parse")

@@ -12,6 +12,7 @@ class JobCreate(BaseModel):
     job_url:      Optional[str] = None
     notes:        Optional[str] = None
     date_applied: Optional[date] = None
+    user_id:      Optional[int] = None
 
 class JobResponse(JobCreate):
     id:         int
@@ -31,6 +32,34 @@ class ReferralCreate(BaseModel):
 class ReferralResponse(ReferralCreate):
     id:         int
     created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class NoteCreate(BaseModel):
+    note: str
+
+class NoteResponse(NoteCreate):
+    id:         int
+    job_id:     int
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+    
+class UserRegister(BaseModel):
+    name:     str
+    email:    str
+    password: str
+
+class UserLogin(BaseModel):
+    email:    str
+    password: str
+
+class UserResponse(BaseModel):
+    id:    int
+    name:  str
+    email: str
 
     class Config:
         from_attributes = True

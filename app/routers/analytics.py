@@ -1,3 +1,5 @@
+from typing import Optional
+from fastapi import APIRouter, Depends, Query
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
@@ -10,19 +12,26 @@ import io
 router = APIRouter(prefix="/analytics", tags=["Analytics"])
 
 @router.get("/")
-def get_stats(db: Session = Depends(get_db)):
-    total     = db.query(Job).count()
-    applied   = db.query(Job).filter(Job.status=="Applied").count()
-    screening = db.query(Job).filter(Job.status=="Screening").count()
-    interview = db.query(Job).filter(Job.status=="Interview").count()
-    offer     = db.query(Job).filter(Job.status=="Offer").count()
-    rejected  = db.query(Job).filter(Job.status=="Rejected").count()
+@router.get("/")
+def get_stats(user_id: Optional[int] = Query(None), db: Session = Depends(get_db)):
+    from typing import Optional as Opt
+    q = db.query(Job)
+    if user_id:
+        q = q.filter(Job.user_id == user_id)
+
+    total     = q.count()
+    applied   = q.filter(Job.status=="Applied").count()
+    screening = q.filter(Job.status=="Screening").count()
+    interview = q.filter(Job.status=="Interview").count()
+    offer     = q.filter(Job.status=="Offer").count()
+    rejected  = q.filter(Job.status=="Rejected").count()
 
     cutoff   = date.today() - timedelta(days=7)
     followup = db.query(Job).filter(
+        Job.user_id == user_id,
         Job.status=="Applied",
         Job.date_applied <= cutoff
-    ).count()
+    ).count() if user_id else 0
 
     return {
         "total": total,
@@ -38,7 +47,6 @@ def get_stats(db: Session = Depends(get_db)):
         "rejection_rate_pct": round(rejected/total*100, 1)  if total else 0,
         "followup_needed":    followup
     }
-
 @router.get("/export/csv")
 def export_csv(db: Session = Depends(get_db)):
     jobs = db.query(Job).all()
