@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Smart Job Tracker — Login</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .auth-card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .brand-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0f3460;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .brand-sub {
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: #f0f0f0;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: #0f3460;
+      color: white;
+      border-radius: 8px;
+    }
+    .tab-wrap {
+      display: flex;
+      gap: 4px;
+      background: #f0f0f0;
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 24px;
+    }
+    .form-control {
+      border-radius: 8px;
+      padding: 12px;
+      border: 1.5px solid #e0e0e0;
+    }
+    .form-control:focus {
+      border-color: #0f3460;
+      box-shadow: none;
+    }
+    .btn-main {
+      background: #0f3460;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      width: 100%;
+      font-weight: 500;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-main:hover { background: #1a4a7a; }
+    .error-msg {
+      color: #dc3545;
+      font-size: 13px;
+      margin-top: 8px;
+      text-align: center;
+      display: none;
+    }
+    .success-msg {
+      color: #198754;
+      font-size: 13px;
+      margin-top: 8px;
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="auth-card">
+  <div class="brand-title">🎯 AI Smart Job Tracker</div>
+  <div class="brand-sub">Manage your job applications smartly</div>
+
+  <!-- Tabs -->
+  <div class="tab-wrap">
+    <button class="tab-btn active" id="tab-login" onclick="showTab('login')">Login</button>
+    <button class="tab-btn" id="tab-register" onclick="showTab('register')">Register</button>
+  </div>
+
+  <!-- Login Form -->
+  <div id="login-form">
+    <div class="mb-3">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-control" id="login-email" placeholder="you@email.com">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-control" id="login-password" placeholder="Your password">
+    </div>
+    <button class="btn-main" onclick="doLogin()">Login</button>
+    <div class="error-msg" id="login-error"></div>
+  </div>
+
+  <!-- Register Form -->
+  <div id="register-form" style="display:none">
+    <div class="mb-3">
+      <label class="form-label">Full Name</label>
+      <input type="text" class="form-control" id="reg-name" placeholder="Your full name">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-control" id="reg-email" placeholder="you@email.com">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-control" id="reg-password" placeholder="Create a password">
+    </div>
+    <button class="btn-main" onclick="doRegister()">Create Account</button>
+    <div class="error-msg" id="reg-error"></div>
+    <div class="success-msg" id="reg-success"></div>
+  </div>
+</div>
+
+<script>
+function showTab(tab) {
+  document.getElementById('login-form').style.display    = tab === 'login'    ? 'block' : 'none';
+  document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('tab-login').classList.toggle('active',    tab === 'login');
+  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+}
+
+async function doLogin() {
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl    = document.getElementById('login-error');
+
+  if (!email || !password) {
+    showError(errEl, 'Please fill in all fields');
+    return;
+  }
+
+  try {
+    const resp = await fetch('/auth/login', {
+      method:  'POST',
+      headers: {'Content-Type': 'application/json'},
+      body:    JSON.stringify({ email, password })
+    });
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      showError(errEl, data.detail || 'Login failed');
+      return;
+    }
+
+    localStorage.setItem('user_name',  data.name);
+    localStorage.setItem('user_email', data.email);
+    localStorage.setItem('user_id',    data.user_id);
+    window.location.href = '/dashboard';
+
+  } catch(e) {
+    showError(errEl, 'Something went wrong. Try again.');
+  }
+}
+
+async function doRegister() {
+  const name     = document.getElementById('reg-name').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const errEl    = document.getElementById('reg-error');
+  const sucEl    = document.getElementById('reg-success');
+
+  if (!name || !email || !password) {
+    showError(errEl, 'Please fill in all fields');
+    return;
+  }
+  if (password.length < 6) {
+    showError(errEl, 'Password must be at least 6 characters');
+    return;
+  }
+
+  try {
+    const resp = await fetch('/auth/register', {
+      method:  'POST',
+      headers: {'Content-Type': 'application/json'},
+      body:    JSON.stringify({ name, email, password })
+    });
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      showError(errEl, data.detail || 'Registration failed');
+      return;
+    }
+
+    errEl.style.display = 'none';
+    sucEl.style.display = 'block';
+    sucEl.textContent   = 'Account created! Switching to login...';
+    setTimeout(() => showTab('login'), 1500);
+
+  } catch(e) {
+    showError(errEl, 'Something went wrong. Try again.');
+  }
+}
+
+function showError(el, msg) {
+  el.textContent  = msg;
+  el.style.display = 'block';
+}
+
+// If already logged in go straight to dashboard
+if (localStorage.getItem('user_name')) {
+  window.location.href = '/dashboard';
+}
+</script>
+</body>
+</html>
