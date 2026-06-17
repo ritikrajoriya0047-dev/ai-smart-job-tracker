@@ -70,3 +70,34 @@ def export_csv(db: Session = Depends(get_db)):
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=job_applications.csv"}
     )
+
+@router.get("/followups")
+def get_followup_jobs(user_id: Optional[int] = Query(None), db: Session = Depends(get_db)):
+    from datetime import date, timedelta
+    cutoff = date.today() - timedelta(days=7)
+    q = db.query(Job).filter(
+        Job.status == "Applied",
+        Job.date_applied <= cutoff
+    )
+    if user_id:
+        q = q.filter(Job.user_id == user_id)
+    jobs = q.order_by(Job.date_applied.asc()).all()
+
+    result = []
+    for j in jobs:
+        days_waiting = (date.today() - j.date_applied).days if j.date_applied else 0
+        result.append({
+            "id":           j.id,
+            "company":      j.company,
+            "role":         j.role,
+            "date_applied": str(j.date_applied),
+            "days_waiting": days_waiting,
+            "source":       j.source
+        })
+
+    return {
+        "total_followups": len(result),
+        "jobs":            result
+    }
+
+ 

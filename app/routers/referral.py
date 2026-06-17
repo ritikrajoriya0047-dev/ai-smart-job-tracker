@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from typing import Optional
 from app.database import get_db
 from app.models import Referral
 from app import schemas
@@ -19,8 +20,11 @@ def create_referral(data: schemas.ReferralCreate, db: Session = Depends(get_db))
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/")
-def get_referrals(db: Session = Depends(get_db)):
-    return db.query(Referral).order_by(Referral.created_at.desc()).all()
+def get_referrals(user_id: Optional[int] = Query(None), db: Session = Depends(get_db)):
+    q = db.query(Referral)
+    if user_id:
+        q = q.filter(Referral.user_id == user_id)
+    return q.order_by(Referral.created_at.desc()).all()
 
 @router.put("/{ref_id}", response_model=schemas.ReferralResponse)
 def update_referral(ref_id: int, data: schemas.ReferralCreate, db: Session = Depends(get_db)):

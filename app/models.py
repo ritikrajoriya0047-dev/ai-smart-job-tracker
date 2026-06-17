@@ -5,18 +5,18 @@ from app.database import Base
 class Job(Base):
     __tablename__ = "jobs"
 
-    id           = Column(Integer, primary_key=True, index=True)
-    user_id      = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
-    company      = Column(String(100), nullable=False)
-    role         = Column(String(100), nullable=False)
-    status       = Column(String(50), default="Applied")
-    location     = Column(String(100))
-    salary       = Column(String(50))
-    source       = Column(String(50))
-    job_url      = Column(String(300))
-    notes        = Column(String(500))
-    date_applied = Column(Date)
-    created_at   = Column(DateTime, server_default=func.now())
+    id             = Column(Integer, primary_key=True, index=True)
+    user_id        = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    company        = Column(String(100), nullable=False)
+    role           = Column(String(100), nullable=False)
+    status         = Column(String(50), default="Applied")
+    location       = Column(String(100))
+    salary         = Column(String(50))
+    source         = Column(String(50))
+    job_url        = Column(String(300))
+    notes          = Column(String(500))
+    date_applied   = Column(Date)
+    created_at     = Column(DateTime, server_default=func.now())
 
 class StatusHistory(Base):
     __tablename__ = "status_history"
@@ -31,6 +31,7 @@ class Referral(Base):
     __tablename__ = "referrals"
 
     id         = Column(Integer, primary_key=True, index=True)
+    user_id    = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     name       = Column(String(100), nullable=False)
     company    = Column(String(100))
     linkedin   = Column(String(200))

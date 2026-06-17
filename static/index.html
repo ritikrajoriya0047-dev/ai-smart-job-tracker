@@ -15,9 +15,11 @@
 .nav-link-btn:hover, .nav-link-btn.active { background:rgba(255,255,255,0.15); color:white; }
 .skill-badge { display:inline-block; background:#cfe2ff; color:#084298; border-radius:20px; padding:3px 10px; font-size:12px; margin:2px; }
 .rec-card { border-left:4px solid #0d6efd; border-radius:8px; padding:10px 14px; background:#f8f9ff; margin-bottom:8px; }
-.ref-status-pending  { background:#fff3cd; color:#664d03; padding:2px 10px; border-radius:20px; font-size:12px; }
-.ref-status-referred { background:#cfe2ff; color:#084298; padding:2px 10px; border-radius:20px; font-size:12px; }
-.ref-status-responded{ background:#d1e7dd; color:#0a3622; padding:2px 10px; border-radius:20px; font-size:12px; }
+.ref-status-pending   { background:#fff3cd; color:#664d03; padding:2px 10px; border-radius:20px; font-size:12px; }
+.ref-status-referred  { background:#cfe2ff; color:#084298; padding:2px 10px; border-radius:20px; font-size:12px; }
+.ref-status-responded { background:#d1e7dd; color:#0a3622; padding:2px 10px; border-radius:20px; font-size:12px; }
+.app-section { width:100%; max-width:1280px; margin:0 auto; padding:24px; }
+.app-section .card { width:100%; }
   </style>
 </head>
 <body class="bg-light">
@@ -25,72 +27,61 @@
 <nav class="navbar navbar-dark bg-dark px-4">
   <span class="navbar-brand fw-bold">🎯 AI Smart Job Tracker</span>
   <div class="d-flex align-items-center gap-2">
-    <button class="nav-link-btn active" onclick="showSection('dashboard')">Dashboard</button>
-    <button class="nav-link-btn" onclick="showSection('resume')">Resume Parser</button>
-    <button class="nav-link-btn" onclick="showSection('recommend')">AI Recommend</button>
-    <button class="nav-link-btn" onclick="showSection('referral')">Referrals</button>
+    <button class="nav-link-btn active" onclick="showSection('dashboard', this)">Dashboard</button>
+    <button class="nav-link-btn" onclick="showSection('resume', this)">Resume Parser</button>
+    <button class="nav-link-btn" onclick="showSection('recommend', this)">AI Recommend</button>
+    <button class="nav-link-btn" onclick="showSection('referral', this)">Referrals</button>
     <span class="text-white small ms-2" id="nav-user"></span>
     <a href="/docs" target="_blank" class="btn btn-outline-light btn-sm ms-1">API Docs</a>
     <button class="btn btn-outline-danger btn-sm" onclick="logout()">Logout</button>
   </div>
 </nav>
 
-<!-- ==================== DASHBOARD SECTION ==================== -->
-<div id="section-dashboard" class="container py-4">
+<!-- ==================== DASHBOARD ==================== -->
+<div id="section-dashboard" class="app-section">
 
   <div class="row g-3 mb-4">
     <div class="col-md-3">
       <div class="card text-center border-primary">
-        <div class="card-body">
-          <h2 class="text-primary" id="total">0</h2>
-          <p class="mb-0 text-muted">Total Applied</p>
-        </div>
+        <div class="card-body"><h2 class="text-primary" id="total">0</h2><p class="mb-0 text-muted">Total Applied</p></div>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card text-center border-warning">
-        <div class="card-body">
-          <h2 class="text-warning" id="interviews">0</h2>
-          <p class="mb-0 text-muted">Interviews</p>
-        </div>
+        <div class="card-body"><h2 class="text-warning" id="interviews">0</h2><p class="mb-0 text-muted">Interviews</p></div>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card text-center border-success">
-        <div class="card-body">
-          <h2 class="text-success" id="offers">0</h2>
-          <p class="mb-0 text-muted">Offers</p>
-        </div>
+        <div class="card-body"><h2 class="text-success" id="offers">0</h2><p class="mb-0 text-muted">Offers</p></div>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card text-center border-danger">
-        <div class="card-body">
-          <h2 class="text-danger" id="followups">0</h2>
-          <p class="mb-0 text-muted">Follow-ups Needed</p>
-        </div>
+        <div class="card-body"><h2 class="text-danger" id="followups">0</h2><p class="mb-0 text-muted">Follow-ups Needed</p></div>
       </div>
+    </div>
+  </div>
+
+  <!-- Follow-up Reminders -->
+  <div class="card mb-4 border-warning" id="followup-section" style="display:none">
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <h5 class="card-title mb-0">🔔 Follow-up Reminders</h5>
+        <span class="badge bg-warning text-dark" id="followup-badge">0</span>
+      </div>
+      <p class="text-muted small mb-3">These jobs have been in <strong>Applied</strong> status for more than 7 days with no response. Time to follow up!</p>
+      <div id="followup-list"></div>
     </div>
   </div>
 
   <div class="card mb-4 border-info">
     <div class="card-body">
       <div class="row align-items-center">
-        <div class="col-md-3 text-center">
-          <h1 class="text-info" id="score">-</h1>
-          <p class="text-muted mb-0">Success Score</p>
-        </div>
-        <div class="col-md-3 text-center">
-          <h3 id="grade">-</h3>
-          <p class="text-muted mb-0">Grade</p>
-        </div>
-        <div class="col-md-3 text-center">
-          <h5 class="text-success" id="best-source">-</h5>
-          <p class="text-muted mb-0">Best Source</p>
-        </div>
-        <div class="col-md-3">
-          <p class="text-muted small mb-0" id="predict-tip"></p>
-        </div>
+        <div class="col-md-3 text-center"><h1 class="text-info" id="score">-</h1><p class="text-muted mb-0">Success Score</p></div>
+        <div class="col-md-3 text-center"><h3 id="grade">-</h3><p class="text-muted mb-0">Grade</p></div>
+        <div class="col-md-3 text-center"><h5 class="text-success" id="best-source">-</h5><p class="text-muted mb-0">Best Source</p></div>
+        <div class="col-md-3"><p class="text-muted small mb-0" id="predict-tip"></p></div>
       </div>
     </div>
   </div>
@@ -98,7 +89,7 @@
   <div class="card mb-4">
     <div class="card-body">
       <h5 class="card-title">Add New Job Application</h5>
-      <div class="row g-2">
+      <div class="row g-2 align-items-end">
         <div class="col-md-3"><input type="text" class="form-control" id="company" placeholder="Company"></div>
         <div class="col-md-2"><input type="text" class="form-control" id="role" placeholder="Role"></div>
         <div class="col-md-2"><input type="text" class="form-control" id="location" placeholder="Location"></div>
@@ -109,12 +100,12 @@
             <option>Indeed</option><option>Referral</option><option>Other</option>
           </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
           <input type="date" class="form-control" id="date_applied">
         </div>
-      </div>
-      <div class="d-flex justify-content-end mt-2">
-        <button class="btn btn-primary btn-sm" onclick="addJob()">Add Job</button>
+        <div class="col-md-1">
+          <button class="btn btn-primary w-100" onclick="addJob()">Add Job</button>
+        </div>
       </div>
     </div>
   </div>
@@ -155,7 +146,7 @@
       </div>
       <table class="table table-hover">
         <thead class="table-dark">
-          <tr><th>#</th><th>Company</th><th>Role</th><th>Status</th><th>Location</th><th>Source</th><th>Date Applied</th><th>Notes</th></tr>
+          <tr><th>#</th><th>Company</th><th>Role</th><th>Status</th><th>Location</th><th>Source</th><th>Date Applied</th><th>Actions</th></tr>
         </thead>
         <tbody id="jobs-body"></tbody>
       </table>
@@ -164,115 +155,56 @@
   </div>
 </div>
 
-<!-- ==================== RESUME SECTION ==================== -->
-<div id="section-resume" class="container py-4" style="display:none">
+<!-- ==================== RESUME ==================== -->
+<div id="section-resume" class="app-section" style="display:none">
   <div class="card">
     <div class="card-body">
       <h4 class="card-title mb-1">📄 Resume Parser</h4>
       <p class="text-muted mb-4">Upload your PDF resume to extract skills automatically.</p>
-
       <div class="mb-3">
         <label class="form-label fw-bold">Upload Resume (PDF only)</label>
         <input type="file" class="form-control" id="resume-file" accept=".pdf">
       </div>
       <button class="btn btn-primary" onclick="parseResume()">Parse Resume</button>
-
       <div id="resume-result" class="mt-4" style="display:none">
         <hr>
         <div class="row g-3">
-          <div class="col-md-3">
-            <div class="card text-center border-primary">
-              <div class="card-body">
-                <h3 class="text-primary" id="res-pages">-</h3>
-                <p class="mb-0 text-muted">Pages</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card text-center border-info">
-              <div class="card-body">
-                <h3 class="text-info" id="res-words">-</h3>
-                <p class="mb-0 text-muted">Words</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card text-center border-success">
-              <div class="card-body">
-                <h3 class="text-success" id="res-skill-count">-</h3>
-                <p class="mb-0 text-muted">Skills Found</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card text-center border-warning">
-              <div class="card-body">
-                <h3 class="text-warning" id="res-filename">-</h3>
-                <p class="mb-0 text-muted">File</p>
-              </div>
-            </div>
-          </div>
+          <div class="col-md-3"><div class="card text-center border-primary"><div class="card-body"><h3 class="text-primary" id="res-pages">-</h3><p class="mb-0 text-muted">Pages</p></div></div></div>
+          <div class="col-md-3"><div class="card text-center border-info"><div class="card-body"><h3 class="text-info" id="res-words">-</h3><p class="mb-0 text-muted">Words</p></div></div></div>
+          <div class="col-md-3"><div class="card text-center border-success"><div class="card-body"><h3 class="text-success" id="res-skill-count">-</h3><p class="mb-0 text-muted">Skills Found</p></div></div></div>
+          <div class="col-md-3"><div class="card text-center border-warning"><div class="card-body"><h3 class="text-warning" style="font-size:14px;padding-top:8px" id="res-filename">-</h3><p class="mb-0 text-muted">File</p></div></div></div>
         </div>
-
-        <div class="card mt-3">
-          <div class="card-body">
-            <h6 class="fw-bold mb-2">Skills Found in Your Resume</h6>
-            <div id="res-skills"></div>
-          </div>
-        </div>
-
-        <div class="card mt-3">
-          <div class="card-body">
-            <h6 class="fw-bold mb-2">Resume Preview (first 400 chars)</h6>
-            <p class="text-muted small" id="res-preview"></p>
-          </div>
-        </div>
-
+        <div class="card mt-3"><div class="card-body"><h6 class="fw-bold mb-2">Skills Found in Your Resume</h6><div id="res-skills"></div></div></div>
+        <div class="card mt-3"><div class="card-body"><h6 class="fw-bold mb-2">Resume Preview</h6><p class="text-muted small" id="res-preview"></p></div></div>
         <div class="mt-3">
-          <button class="btn btn-success" onclick="getRecommendFromResume()">
-            🤖 Get AI Job Recommendations from these skills
-          </button>
+          <button class="btn btn-success" onclick="getRecommendFromResume()">🤖 Get AI Job Recommendations from these skills</button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ==================== RECOMMEND SECTION ==================== -->
-<div id="section-recommend" class="container py-4" style="display:none">
+<!-- ==================== RECOMMEND ==================== -->
+<div id="section-recommend" class="app-section" style="display:none">
   <div class="card">
     <div class="card-body">
       <h4 class="card-title mb-1">🤖 AI Job Recommendations</h4>
       <p class="text-muted mb-4">Enter your skills and get job role recommendations tailored to you.</p>
-
       <div class="mb-3">
         <label class="form-label fw-bold">Enter your skills (comma separated)</label>
-        <input type="text" class="form-control" id="skills-input"
-          placeholder="e.g. python, sql, mongodb, git, html, css">
+        <input type="text" class="form-control" id="skills-input" placeholder="e.g. python, sql, mongodb, git, html, css">
       </div>
       <button class="btn btn-primary" onclick="getRecommendations()">Get Recommendations</button>
-
       <div id="recommend-result" class="mt-4" style="display:none">
         <hr>
         <div class="row g-3 mb-3">
           <div class="col-md-6">
-            <div class="card border-primary">
-              <div class="card-body">
-                <h6 class="fw-bold">Your Matched Skills</h6>
-                <div id="rec-matched-skills"></div>
-              </div>
-            </div>
+            <div class="card border-primary"><div class="card-body"><h6 class="fw-bold">Your Matched Skills</h6><div id="rec-matched-skills"></div></div></div>
           </div>
           <div class="col-md-6">
-            <div class="card border-success">
-              <div class="card-body">
-                <h6 class="fw-bold">Top Recommended Roles</h6>
-                <div id="rec-top-roles"></div>
-              </div>
-            </div>
+            <div class="card border-success"><div class="card-body"><h6 class="fw-bold">Top Recommended Roles</h6><div id="rec-top-roles"></div></div></div>
           </div>
         </div>
-
         <div class="card border-warning">
           <div class="card-body">
             <h6 class="fw-bold">🎯 Roles You Haven't Applied To Yet</h6>
@@ -280,37 +212,34 @@
             <div id="rec-not-applied"></div>
           </div>
         </div>
-
         <div class="alert alert-info mt-3" id="rec-tip"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ==================== REFERRAL SECTION ==================== -->
-<div id="section-referral" class="container py-4" style="display:none">
+<!-- ==================== REFERRAL ==================== -->
+<div id="section-referral" class="app-section" style="display:none">
   <div class="card mb-4">
     <div class="card-body">
       <h4 class="card-title mb-1">🤝 Referral Tracker</h4>
       <p class="text-muted mb-3">Track your referral contacts and recruiters.</p>
-
       <div class="row g-2">
         <div class="col-md-3"><input type="text" class="form-control" id="ref-name" placeholder="Contact Name"></div>
         <div class="col-md-2"><input type="text" class="form-control" id="ref-company" placeholder="Company"></div>
-        <div class="col-md-3"><input type="text" class="form-control" id="ref-linkedin" placeholder="LinkedIn URL"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="ref-linkedin" placeholder="LinkedIn URL"></div>
         <div class="col-md-2"><input type="text" class="form-control" id="ref-email" placeholder="Email"></div>
         <div class="col-md-2"><input type="text" class="form-control" id="ref-notes" placeholder="Notes"></div>
-        <div class="col-12"><button class="btn btn-primary" onclick="addReferral()">Add Referral</button></div>
+        <div class="col-md-1"><button class="btn btn-primary w-100" onclick="addReferral()">Add</button></div>
       </div>
     </div>
   </div>
-
   <div class="card">
     <div class="card-body">
       <h5 class="card-title mb-3">All Referral Contacts <span class="badge bg-secondary" id="ref-count">0</span></h5>
       <table class="table table-hover">
         <thead class="table-dark">
-          <tr><th>#</th><th>Name</th><th>Company</th><th>LinkedIn</th><th>Email</th><th>Status</th><th>Notes</th><th>Action</th></tr>
+          <tr><th>#</th><th>Name</th><th>Company</th><th>LinkedIn</th><th>Email</th><th>Status</th><th>Notes</th><th>Update Status</th><th>Delete</th></tr>
         </thead>
         <tbody id="referral-body"></tbody>
       </table>
@@ -330,8 +259,7 @@
       <div class="modal-body">
         <div class="mb-3">
           <label class="form-label fw-bold">Add New Note</label>
-          <textarea class="form-control" id="new-note" rows="2"
-            placeholder="e.g. HR called for screening, technical round on June 10th..."></textarea>
+          <textarea class="form-control" id="new-note" rows="2" placeholder="e.g. HR called for screening..."></textarea>
           <button class="btn btn-primary btn-sm mt-2" onclick="submitNote()">Add Note</button>
         </div>
         <hr>
@@ -354,7 +282,10 @@ window.onload = () => {
   if (!userName) { window.location.href = '/login-page'; return; }
   document.getElementById('nav-user').textContent = 'Hi, ' + userName + '!';
   notesModal = new bootstrap.Modal(document.getElementById('notesModal'));
-  loadStats(); loadJobs(); loadPredictor();
+  loadStats();
+  loadJobs();
+  loadPredictor();
+  loadFollowups();
 };
 
 function logout() {
@@ -364,13 +295,66 @@ function logout() {
   window.location.href = '/login-page';
 }
 
-function showSection(name) {
+function showSection(name, btn) {
   ['dashboard','resume','recommend','referral'].forEach(s => {
     document.getElementById('section-'+s).style.display = s === name ? 'block' : 'none';
   });
   document.querySelectorAll('.nav-link-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  if (btn) btn.classList.add('active');
   if (name === 'referral') loadReferrals();
+}
+
+async function loadFollowups() {
+  const userId = localStorage.getItem('user_id');
+  try {
+    const data = await fetch(`/analytics/followups?user_id=${userId}`).then(r => r.json());
+    const section = document.getElementById('followup-section');
+    const badge   = document.getElementById('followup-badge');
+    const list    = document.getElementById('followup-list');
+
+    if (data.total_followups === 0) {
+      section.style.display = 'none';
+      return;
+    }
+
+    section.style.display = 'block';
+    badge.textContent = data.total_followups;
+
+    list.innerHTML = data.jobs.map(j => `
+      <div class="d-flex align-items-center justify-content-between
+        p-2 mb-2 rounded border border-warning bg-warning bg-opacity-10">
+        <div>
+          <strong>${j.company}</strong>
+          <span class="text-muted ms-2 small">${j.role}</span>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <span class="text-muted small">Applied: ${j.date_applied}</span>
+          <span class="badge bg-danger">${j.days_waiting} days waiting</span>
+          <button class="btn btn-outline-warning btn-sm"
+            onclick="scrollToJob(${j.id})">View Job</button>
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    console.log('Followup error:', e);
+  }
+}
+
+function scrollToJob(jobId) {
+  showSection('dashboard', document.querySelectorAll('.nav-link-btn')[0]);
+  setTimeout(() => {
+    const rows = document.querySelectorAll('#jobs-body tr');
+    rows.forEach(row => {
+      row.style.background = '';
+    });
+    const job = allJobs.find(j => j.id === jobId);
+    if (job) {
+      const index = allJobs.indexOf(job);
+      if (rows[index]) {
+        rows[index].style.background = 'rgba(255, 193, 7, 0.2)';
+        rows[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, 100);
 }
 
 // ========== DASHBOARD ==========
@@ -387,7 +371,7 @@ async function loadPredictor() {
   try {
     const userId = localStorage.getItem('user_id');
     const p = await fetch(`/predict/?user_id=${userId}`).then(r => r.json());
-    if (p.total_applications === 0) {
+    if (!p.total_applications || p.total_applications === 0) {
       document.getElementById('score').textContent = 'N/A';
       document.getElementById('grade').textContent = 'No data'; return;
     }
@@ -446,8 +430,12 @@ function renderJobs(jobs) {
         <td>${j.source||'-'}</td>
         <td>${j.date_applied||'-'}</td>
         <td>
-          <button class="btn btn-outline-secondary btn-sm"
-            onclick="openNotes(${j.id}, '${j.company}', '${j.role}')">📝 Notes</button>
+          <div class="d-flex gap-1">
+            <button class="btn btn-outline-secondary btn-sm"
+              onclick="openNotes(${j.id}, '${j.company}', '${j.role}')">📝 Notes</button>
+            <button class="btn btn-outline-danger btn-sm"
+              onclick="deleteJob(${j.id})">🗑</button>
+          </div>
         </td>
       </tr>`;
   });
@@ -458,11 +446,11 @@ function filterJobs() {
   const company = document.getElementById('search-company').value.toLowerCase();
   const status  = document.getElementById('filter-status').value;
   const source  = document.getElementById('filter-source').value;
-  const filtered = allJobs.filter(j => {
-    return (!company || j.company.toLowerCase().includes(company)) &&
-           (!status  || j.status === status) &&
-           (!source  || j.source === source);
-  });
+  const filtered = allJobs.filter(j =>
+    (!company || j.company.toLowerCase().includes(company)) &&
+    (!status  || j.status === status) &&
+    (!source  || j.source === source)
+  );
   renderJobs(filtered);
 }
 
@@ -486,9 +474,19 @@ async function updateStatus(jobId, newStatus, userId) {
     const resp = await fetch(`/jobs/${jobId}`, {
       method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
     });
-    if (resp.ok) { loadStats(); loadJobs(); loadPredictor(); }
+    if (resp.ok) { loadStats(); loadJobs(); loadPredictor(); loadFollowups(); }
     else alert('Failed to update status!');
   } catch(e) { console.log('Update error:', e); }
+}
+
+async function deleteJob(jobId) {
+  if (!confirm('Are you sure you want to delete this job application?')) return;
+  const resp = await fetch(`/jobs/${jobId}`, { method: 'DELETE' });
+  if (resp.ok) {
+    loadStats(); loadJobs(); loadPredictor(); loadFollowups();
+  } else {
+    alert('Failed to delete job!');
+  }
 }
 
 async function addJob() {
@@ -498,7 +496,7 @@ async function addJob() {
     role:         document.getElementById('role').value,
     location:     document.getElementById('location').value,
     source:       document.getElementById('source').value,
-    date_applied: document.getElementById('date_applied').value,
+    date_applied: document.getElementById('date_applied').value || null,
     status:       "Applied",
     user_id:      userId
   };
@@ -510,7 +508,7 @@ async function addJob() {
   document.getElementById('role').value         = '';
   document.getElementById('location').value     = '';
   document.getElementById('date_applied').value = '';
-  loadStats(); loadJobs(); loadPredictor();
+  loadStats(); loadJobs(); loadPredictor(); loadFollowups();
 }
 
 // ========== NOTES ==========
@@ -562,48 +560,32 @@ async function deleteNote(noteId) {
 async function parseResume() {
   const fileInput = document.getElementById('resume-file');
   if (!fileInput.files[0]) { alert('Please select a PDF file first!'); return; }
-
   const formData = new FormData();
   formData.append('file', fileInput.files[0]);
-
   const btn = event.target;
-  btn.textContent = 'Parsing...';
-  btn.disabled = true;
-
+  btn.textContent = 'Parsing...'; btn.disabled = true;
   try {
     const resp = await fetch('/resume/parse', { method:'POST', body:formData });
     const data = await resp.json();
-
     document.getElementById('res-pages').textContent       = data.pages;
     document.getElementById('res-words').textContent       = data.word_count;
     document.getElementById('res-skill-count').textContent = data.skill_count;
     document.getElementById('res-filename').textContent    = data.filename;
     document.getElementById('res-preview').textContent     = data.preview;
-
     const skillsDiv = document.getElementById('res-skills');
-    if (data.skills_found.length === 0) {
-      skillsDiv.innerHTML = '<p class="text-muted">No matching skills found. Try adding more skills to your resume.</p>';
-    } else {
-      skillsDiv.innerHTML = data.skills_found.map(s =>
-        `<span class="skill-badge">${s}</span>`).join('');
-    }
-
+    skillsDiv.innerHTML = data.skills_found.length > 0
+      ? data.skills_found.map(s => `<span class="skill-badge">${s}</span>`).join('')
+      : '<p class="text-muted">No matching skills found.</p>';
     lastSkills = data.skills_found;
     document.getElementById('resume-result').style.display = 'block';
-  } catch(e) {
-    alert('Error parsing resume. Make sure it is a valid PDF.');
-  }
-
-  btn.textContent = 'Parse Resume';
-  btn.disabled = false;
+  } catch(e) { alert('Error parsing resume. Make sure it is a valid PDF.'); }
+  btn.textContent = 'Parse Resume'; btn.disabled = false;
 }
 
 async function getRecommendFromResume() {
   if (lastSkills.length === 0) { alert('Parse your resume first!'); return; }
   document.getElementById('skills-input').value = lastSkills.join(', ');
-  showSection('recommend');
-  document.querySelectorAll('.nav-link-btn')[2].classList.add('active');
-  document.querySelectorAll('.nav-link-btn')[1].classList.remove('active');
+  showSection('recommend', document.querySelectorAll('.nav-link-btn')[2]);
   await getRecommendations();
 }
 
@@ -611,33 +593,24 @@ async function getRecommendFromResume() {
 async function getRecommendations() {
   const input = document.getElementById('skills-input').value.trim();
   if (!input) { alert('Please enter your skills!'); return; }
-
   const skills = input.split(',').map(s => s.trim().toLowerCase()).filter(s => s);
-
-  const btn = event.target;
-  btn.textContent = 'Getting recommendations...';
-  btn.disabled = true;
-
+  const btn = event ? event.target : null;
+  if (btn) { btn.textContent = 'Getting recommendations...'; btn.disabled = true; }
   try {
     const resp = await fetch('/recommend/', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(skills)
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(skills)
     });
     const data = await resp.json();
-
     document.getElementById('rec-matched-skills').innerHTML =
       data.matched_skills.length > 0
         ? data.matched_skills.map(s => `<span class="skill-badge">${s}</span>`).join('')
         : '<p class="text-muted small">No matched skills found.</p>';
-
     document.getElementById('rec-top-roles').innerHTML =
       data.top_recommended_roles.map(r => `
         <div class="rec-card">
           <strong>${r.role}</strong>
           <span class="badge bg-primary ms-2">${r.match_score} skill match</span>
         </div>`).join('');
-
     const notApplied = data.not_applied_yet;
     document.getElementById('rec-not-applied').innerHTML =
       notApplied.length > 0
@@ -648,35 +621,28 @@ async function getRecommendations() {
               <span class="text-success ms-2 small">✓ Not applied yet</span>
             </div>`).join('')
         : '<p class="text-muted">You have applied to all recommended roles. Great job!</p>';
-
     document.getElementById('rec-tip').textContent = data.tip;
     document.getElementById('recommend-result').style.display = 'block';
-  } catch(e) {
-    alert('Error getting recommendations.');
-  }
-
-  btn.textContent = 'Get Recommendations';
-  btn.disabled = false;
+  } catch(e) { alert('Error getting recommendations.'); }
+  if (btn) { btn.textContent = 'Get Recommendations'; btn.disabled = false; }
 }
 
 // ========== REFERRAL TRACKER ==========
 async function loadReferrals() {
-  const data = await fetch('/referrals/').then(r => r.json());
+  const userId = localStorage.getItem('user_id');
+  const data = await fetch(`/referrals/?user_id=${userId}`).then(r => r.json());
   const tbody = document.getElementById('referral-body');
   const noRef = document.getElementById('no-referrals');
   tbody.innerHTML = '';
   document.getElementById('ref-count').textContent = data.length;
-
   if (data.length === 0) { noRef.classList.remove('d-none'); return; }
   noRef.classList.add('d-none');
-
   data.forEach((r, index) => {
     const statusClass = {
       'Pending':'ref-status-pending',
       'Referred':'ref-status-referred',
       'Responded':'ref-status-responded'
     }[r.status] || 'ref-status-pending';
-
     tbody.innerHTML += `
       <tr>
         <td>${index + 1}</td>
@@ -688,45 +654,63 @@ async function loadReferrals() {
         <td>${r.notes||'-'}</td>
         <td>
           <select class="form-select form-select-sm" style="width:120px"
-            onchange="updateReferralStatus(${r.id}, this.value)">
+            onchange="updateReferralStatus(${r.id}, this.value, '${r.name}', '${r.company||''}', '${r.linkedin||''}', '${r.email||''}', '${r.notes||''}')">
             <option ${r.status==='Pending'   ? 'selected':''}>Pending</option>
             <option ${r.status==='Referred'  ? 'selected':''}>Referred</option>
             <option ${r.status==='Responded' ? 'selected':''}>Responded</option>
           </select>
+        </td>
+        <td>
+          <button class="btn btn-outline-danger btn-sm"
+            onclick="deleteReferral(${r.id})">🗑 Delete</button>
         </td>
       </tr>`;
   });
 }
 
 async function addReferral() {
+  const userId = parseInt(localStorage.getItem('user_id'));
   const body = {
     name:     document.getElementById('ref-name').value.trim(),
     company:  document.getElementById('ref-company').value.trim(),
     linkedin: document.getElementById('ref-linkedin').value.trim(),
     email:    document.getElementById('ref-email').value.trim(),
     notes:    document.getElementById('ref-notes').value.trim(),
-    status:   'Pending'
+    status:   'Pending',
+    user_id:  userId
   };
   if (!body.name) { alert('Contact name is required!'); return; }
   await fetch('/referrals/', {
     method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
   });
-  document.getElementById('ref-name').value    = '';
-  document.getElementById('ref-company').value = '';
-  document.getElementById('ref-linkedin').value= '';
-  document.getElementById('ref-email').value   = '';
-  document.getElementById('ref-notes').value   = '';
+  document.getElementById('ref-name').value     = '';
+  document.getElementById('ref-company').value  = '';
+  document.getElementById('ref-linkedin').value = '';
+  document.getElementById('ref-email').value    = '';
+  document.getElementById('ref-notes').value    = '';
   loadReferrals();
 }
 
-async function updateReferralStatus(refId, newStatus) {
-  const refs = await fetch('/referrals/').then(r => r.json());
-  const ref  = refs.find(r => r.id === refId);
-  if (!ref) return;
+async function updateReferralStatus(refId, newStatus, name, company, linkedin, email, notes) {
+  const userId = parseInt(localStorage.getItem('user_id'));
   await fetch(`/referrals/${refId}`, {
     method:'PUT', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({...ref, status: newStatus})
+    body:JSON.stringify({
+      name:     name,
+      company:  company,
+      linkedin: linkedin,
+      email:    email,
+      notes:    notes,
+      status:   newStatus,
+      user_id:  userId
+    })
   });
+  loadReferrals();
+}
+
+async function deleteReferral(refId) {
+  if (!confirm('Delete this referral?')) return;
+  await fetch(`/referrals/${refId}`, { method:'DELETE' });
   loadReferrals();
 }
 </script>

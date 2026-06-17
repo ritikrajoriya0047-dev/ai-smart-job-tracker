@@ -6,26 +6,129 @@ from app.models import Job
 router = APIRouter(prefix="/recommend", tags=["AI Recommendations"])
 
 SKILL_JOB_MAP = {
-    "python":         ["Python Developer", "Backend Developer", "Data Engineer", "ML Engineer"],
-    "sql":            ["Database Developer", "Data Analyst", "Backend Developer"],
-    "postgresql":     ["Database Developer", "Backend Developer", "Data Engineer"],
-    "machine learning": ["ML Engineer", "Data Scientist", "AI Developer"],
-    "data analysis":  ["Data Analyst", "Business Analyst", "Data Scientist"],
-    "django":         ["Python Developer", "Full Stack Developer", "Backend Developer"],
-    "fastapi":        ["Python Developer", "Backend Developer", "API Developer"],
-    "flask":          ["Python Developer", "Backend Developer", "Full Stack Developer"],
-    "javascript":     ["Frontend Developer", "Full Stack Developer", "Web Developer"],
-    "react":          ["Frontend Developer", "Full Stack Developer", "UI Developer"],
-    "html":           ["Frontend Developer", "Web Developer", "Full Stack Developer"],
-    "css":            ["Frontend Developer", "Web Developer", "UI Developer"],
-    "docker":         ["DevOps Engineer", "Backend Developer", "Cloud Engineer"],
-    "aws":            ["Cloud Engineer", "DevOps Engineer", "Backend Developer"],
-    "mongodb":        ["Backend Developer", "Full Stack Developer", "Database Developer"],
-    "java":           ["Java Developer", "Backend Developer", "Full Stack Developer"],
-    "c++":            ["C++ Developer", "Systems Engineer", "Game Developer"],
-    "git":            ["Software Developer", "Backend Developer", "Full Stack Developer"],
-    "pandas":         ["Data Analyst", "Data Engineer", "Data Scientist"],
-    "numpy":          ["Data Scientist", "ML Engineer", "Data Analyst"],
+    # Programming Languages
+    "python": ["Python Developer", "Backend Developer", "Data Engineer", "ML Engineer"],
+    "java": ["Java Developer", "Backend Developer", "Software Engineer"],
+    "c": ["Software Developer", "Embedded Engineer", "Systems Engineer"],
+    "c++": ["C++ Developer", "Game Developer", "Systems Engineer"],
+    "c#": [".NET Developer", "Software Engineer", "Backend Developer"],
+    "javascript": ["Frontend Developer", "Full Stack Developer", "Web Developer"],
+    "typescript": ["Frontend Developer", "Full Stack Developer", "Web Developer"],
+    "php": ["PHP Developer", "Backend Developer", "Web Developer"],
+    "ruby": ["Ruby Developer", "Backend Developer"],
+    "go": ["Go Developer", "Backend Developer", "Cloud Engineer"],
+    "rust": ["Rust Developer", "Systems Engineer"],
+    "kotlin": ["Android Developer", "Mobile Developer"],
+    "swift": ["iOS Developer", "Mobile Developer"],
+    "r": ["Data Analyst", "Data Scientist"],
+    "scala": ["Data Engineer", "Backend Developer"],
+
+    # Frontend
+    "html": ["Frontend Developer", "Web Developer"],
+    "css": ["Frontend Developer", "UI Developer"],
+    "bootstrap": ["Frontend Developer", "Web Developer"],
+    "tailwind": ["Frontend Developer", "UI Developer"],
+    "react": ["Frontend Developer", "Full Stack Developer"],
+    "next.js": ["Frontend Developer", "Full Stack Developer"],
+    "angular": ["Frontend Developer", "Web Developer"],
+    "vue.js": ["Frontend Developer", "Web Developer"],
+    "jquery": ["Frontend Developer", "Web Developer"],
+
+    # Backend
+    "django": ["Python Developer", "Backend Developer"],
+    "flask": ["Python Developer", "Backend Developer"],
+    "fastapi": ["Python Developer", "API Developer"],
+    "spring boot": ["Java Developer", "Backend Developer"],
+    "node.js": ["Backend Developer", "Full Stack Developer"],
+    "express.js": ["Backend Developer", "Full Stack Developer"],
+    ".net": [".NET Developer", "Backend Developer"],
+
+    # Databases
+    "sql": ["Database Developer", "Data Analyst"],
+    "mysql": ["Database Developer", "Backend Developer"],
+    "postgresql": ["Database Developer", "Backend Developer"],
+    "mongodb": ["Backend Developer", "Full Stack Developer"],
+    "sqlite": ["Backend Developer", "Database Developer"],
+    "oracle": ["Database Administrator", "Database Developer"],
+    "redis": ["Backend Developer", "Cloud Engineer"],
+    "firebase": ["Mobile Developer", "Backend Developer"],
+
+    # Data Science
+    "pandas": ["Data Analyst", "Data Scientist"],
+    "numpy": ["Data Scientist", "ML Engineer"],
+    "matplotlib": ["Data Analyst", "Data Scientist"],
+    "seaborn": ["Data Analyst", "Data Scientist"],
+    "power bi": ["Data Analyst", "Business Analyst"],
+    "tableau": ["Data Analyst", "Business Analyst"],
+    "excel": ["Data Analyst", "Business Analyst"],
+    "statistics": ["Data Scientist", "Data Analyst"],
+    "data analysis": ["Data Analyst", "Business Analyst"],
+    "data visualization": ["Data Analyst", "BI Developer"],
+
+    # Machine Learning & AI
+    "machine learning": ["ML Engineer", "Data Scientist"],
+    "deep learning": ["AI Engineer", "ML Engineer"],
+    "tensorflow": ["ML Engineer", "AI Engineer"],
+    "pytorch": ["ML Engineer", "AI Engineer"],
+    "nlp": ["NLP Engineer", "AI Engineer"],
+    "computer vision": ["Computer Vision Engineer", "AI Engineer"],
+    "artificial intelligence": ["AI Engineer", "ML Engineer"],
+    "llm": ["AI Engineer", "Generative AI Engineer"],
+    "generative ai": ["Generative AI Engineer", "AI Developer"],
+    "openai": ["AI Engineer", "LLM Developer"],
+    "langchain": ["LLM Developer", "AI Engineer"],
+
+    # Cloud & DevOps
+    "docker": ["DevOps Engineer", "Cloud Engineer"],
+    "kubernetes": ["DevOps Engineer", "Cloud Engineer"],
+    "aws": ["Cloud Engineer", "DevOps Engineer"],
+    "azure": ["Cloud Engineer", "DevOps Engineer"],
+    "gcp": ["Cloud Engineer", "DevOps Engineer"],
+    "jenkins": ["DevOps Engineer", "Automation Engineer"],
+    "terraform": ["DevOps Engineer", "Cloud Engineer"],
+    "ansible": ["DevOps Engineer", "Automation Engineer"],
+    "linux": ["System Administrator", "DevOps Engineer"],
+    "shell scripting": ["DevOps Engineer", "System Administrator"],
+
+    # Version Control
+    "git": ["Software Developer", "Backend Developer"],
+    "github": ["Software Developer", "Full Stack Developer"],
+    "gitlab": ["DevOps Engineer", "Software Developer"],
+
+    # Mobile Development
+    "android": ["Android Developer", "Mobile Developer"],
+    "ios": ["iOS Developer", "Mobile Developer"],
+    "flutter": ["Flutter Developer", "Mobile Developer"],
+    "react native": ["Mobile Developer", "Frontend Developer"],
+
+    # Cyber Security
+    "cyber security": ["Security Analyst", "Cyber Security Engineer"],
+    "ethical hacking": ["Ethical Hacker", "Security Analyst"],
+    "penetration testing": ["Penetration Tester", "Security Engineer"],
+    "network security": ["Security Engineer", "Network Engineer"],
+
+    # Networking
+    "networking": ["Network Engineer", "System Administrator"],
+    "ccna": ["Network Engineer", "Network Administrator"],
+    "tcp/ip": ["Network Engineer", "System Administrator"],
+
+    # Testing
+    "manual testing": ["QA Engineer", "Software Tester"],
+    "automation testing": ["QA Automation Engineer", "Software Tester"],
+    "selenium": ["QA Automation Engineer", "Test Engineer"],
+    "pytest": ["QA Engineer", "Python Developer"],
+
+    # Business & Management
+    "project management": ["Project Manager", "Program Manager"],
+    "agile": ["Scrum Master", "Project Manager"],
+    "scrum": ["Scrum Master", "Project Manager"],
+    "jira": ["Project Manager", "Business Analyst"],
+
+    # UI/UX
+    "figma": ["UI/UX Designer", "Product Designer"],
+    "adobe xd": ["UI/UX Designer"],
+    "ui design": ["UI Designer", "Product Designer"],
+    "ux design": ["UX Designer", "Product Designer"]
 }
 
 @router.post("/")
