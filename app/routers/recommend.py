@@ -124,11 +124,197 @@ SKILL_JOB_MAP = {
     "scrum": ["Scrum Master", "Project Manager"],
     "jira": ["Project Manager", "Business Analyst"],
 
+    # DSA & Core CS
+"dsa": ["Software Engineer", "Backend Developer", "SDE"],
+"data structures": ["Software Engineer", "Backend Developer"],
+"algorithms": ["Software Engineer", "SDE"],
+"oops": ["Software Engineer", "Backend Developer"],
+"operating systems": ["System Engineer", "Software Engineer"],
+"computer networks": ["Network Engineer", "Software Engineer"],
+"dbms": ["Database Developer", "Backend Developer"],
+
+# Salesforce
+"salesforce": ["Salesforce Developer", "CRM Developer"],
+"apex": ["Salesforce Developer"],
+"lightning": ["Salesforce Developer", "CRM Developer"],
+"salesforce admin": ["Salesforce Administrator"],
+"sales cloud": ["Salesforce Consultant"],
+"service cloud": ["Salesforce Consultant"],
+
+# Cloud Computing
+"cloud computing": ["Cloud Engineer", "Cloud Architect"],
+"aws ec2": ["Cloud Engineer"],
+"aws lambda": ["Cloud Engineer", "Serverless Developer"],
+"aws s3": ["Cloud Engineer"],
+"azure devops": ["DevOps Engineer"],
+"azure functions": ["Cloud Engineer"],
+"google cloud": ["Cloud Engineer"],
+"cloud security": ["Cloud Security Engineer"],
+
+# Data Engineering
+"apache spark": ["Data Engineer", "Big Data Engineer"],
+"hadoop": ["Big Data Engineer", "Data Engineer"],
+"hive": ["Data Engineer"],
+"kafka": ["Data Engineer", "Backend Developer"],
+"airflow": ["Data Engineer"],
+"etl": ["Data Engineer"],
+"data warehousing": ["Data Engineer"],
+"snowflake": ["Data Engineer", "Data Architect"],
+
+# AI / LLM
+"chatgpt": ["AI Engineer", "LLM Developer"],
+"prompt engineering": ["AI Engineer", "Generative AI Engineer"],
+"rag": ["LLM Engineer", "AI Engineer"],
+"vector database": ["LLM Engineer"],
+"pinecone": ["LLM Engineer"],
+"weaviate": ["LLM Engineer"],
+"hugging face": ["AI Engineer", "ML Engineer"],
+
+# Blockchain
+"blockchain": ["Blockchain Developer"],
+"ethereum": ["Blockchain Developer"],
+"solidity": ["Blockchain Developer"],
+"web3": ["Blockchain Developer"],
+
+# SAP / ERP
+"sap": ["SAP Consultant"],
+"sap abap": ["SAP ABAP Developer"],
+"sap fico": ["SAP FICO Consultant"],
+"sap hana": ["SAP Consultant"],
+"erp": ["ERP Consultant"],
+
+# CRM
+"crm": ["CRM Developer", "Business Analyst"],
+"zoho": ["CRM Developer"],
+"hubspot": ["CRM Specialist"],
+"sales": ["Sales Executive", "Business Development Executive"],
+"business development": ["Business Development Executive"],
+
+# UI/UX Advanced
+"photoshop": ["Graphic Designer", "UI Designer"],
+"illustrator": ["Graphic Designer"],
+"canva": ["Graphic Designer", "Content Designer"],
+
+# Automation
+"robot framework": ["Automation Engineer"],
+"cypress": ["QA Automation Engineer"],
+"playwright": ["QA Automation Engineer"],
+"postman": ["API Tester", "Backend Developer"],
+
+# Containers & DevOps Advanced
+"helm": ["DevOps Engineer"],
+"grafana": ["DevOps Engineer", "Site Reliability Engineer"],
+"prometheus": ["DevOps Engineer"],
+"nginx": ["DevOps Engineer", "Backend Developer"],
+"apache": ["System Administrator"],
+"ci/cd": ["DevOps Engineer"],
+
+# SRE
+"site reliability engineering": ["Site Reliability Engineer"],
+"sre": ["Site Reliability Engineer"],
+
+# Embedded Systems
+"embedded c": ["Embedded Engineer"],
+"arduino": ["Embedded Engineer", "IoT Engineer"],
+"raspberry pi": ["IoT Engineer"],
+"iot": ["IoT Engineer"],
+
+# Game Development
+"unity": ["Game Developer"],
+"unreal engine": ["Game Developer"],
+"opengl": ["Graphics Engineer", "Game Developer"],
+
+# Analytics
+"business intelligence": ["BI Developer", "Business Analyst"],
+"qlik sense": ["BI Developer"],
+"qlikview": ["BI Developer"],
+
+# Soft Skills
+"communication": ["Business Analyst", "Project Manager"],
+"leadership": ["Project Manager", "Team Lead"],
+"problem solving": ["Software Engineer", "SDE"],
+"team management": ["Project Manager"],
+
+# Finance
+"financial analysis": ["Financial Analyst"],
+"accounting": ["Accountant"],
+"taxation": ["Tax Consultant"],
+
+# HR
+"recruitment": ["HR Executive", "Talent Acquisition Specialist"],
+"talent acquisition": ["Talent Acquisition Specialist"],
+"hr management": ["HR Manager"],
+
+# Digital Marketing
+"seo": ["SEO Specialist", "Digital Marketing Executive"],
+"sem": ["Digital Marketing Executive"],
+"google ads": ["Digital Marketing Specialist"],
+"social media marketing": ["Digital Marketing Executive"],
+"content marketing": ["Content Strategist"],
+
     # UI/UX
     "figma": ["UI/UX Designer", "Product Designer"],
     "adobe xd": ["UI/UX Designer"],
     "ui design": ["UI Designer", "Product Designer"],
-    "ux design": ["UX Designer", "Product Designer"]
+    "ux design": ["UX Designer", "Product Designer"],
+
+        # Aliases
+
+    "js": ["Frontend Developer", "Full Stack Developer", "Web Developer"],
+
+    "reactjs": ["Frontend Developer", "Full Stack Developer"],
+    "react.js": ["Frontend Developer", "Full Stack Developer"],
+
+    "node": ["Backend Developer", "Full Stack Developer"],
+    "nodejs": ["Backend Developer", "Full Stack Developer"],
+
+    "postgres": ["Database Developer", "Backend Developer"],
+    "postgres database": ["Database Developer", "Backend Developer"],
+
+    "ml": ["ML Engineer", "Data Scientist"],
+
+    "ai": ["AI Engineer", "ML Engineer"],
+
+    "oop": ["Software Engineer", "Backend Developer"],
+    "object oriented programming": ["Software Engineer", "Backend Developer"],
+
+    "powerbi": ["Data Analyst", "Business Analyst"],
+
+    "tf": ["ML Engineer", "AI Engineer"],
+
+    "git hub": ["Software Developer", "Full Stack Developer"],
+
+    "aws cloud": ["Cloud Engineer", "DevOps Engineer"],
+
+    "google cloud platform": ["Cloud Engineer", "DevOps Engineer"],
+
+    "data structures and algorithms": ["Software Engineer", "SDE"],
+
+    "chat gpt": ["AI Engineer", "LLM Developer"],
+
+    "gen ai": ["Generative AI Engineer", "AI Developer"],
+
+    "k8s": ["DevOps Engineer", "Cloud Engineer"],
+
+    "containerization": ["DevOps Engineer", "Cloud Engineer"],
+
+    "ci cd": ["DevOps Engineer"],
+
+    "rest api": ["Backend Developer", "API Developer"],
+
+    "api development": ["Backend Developer", "API Developer"],
+
+    "microservices": ["Backend Developer", "Software Engineer"],
+
+    "web development": ["Frontend Developer", "Full Stack Developer"],
+
+    "backend development": ["Backend Developer", "Software Engineer"],
+
+    "frontend development": ["Frontend Developer", "UI Developer"],
+
+    "full stack": ["Full Stack Developer"],
+
+    "full stack development": ["Full Stack Developer"]
 }
 
 @router.post("/")
