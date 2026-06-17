@@ -99,5 +99,34 @@ def get_followup_jobs(user_id: Optional[int] = Query(None), db: Session = Depend
         "total_followups": len(result),
         "jobs":            result
     }
+@router.get("/upcoming-interviews")
+def get_upcoming_interviews(user_id: Optional[int] = Query(None), db: Session = Depends(get_db)):
+    from datetime import date
+    today = date.today()
+    q = db.query(Job).filter(
+        Job.interview_date.isnot(None),
+        Job.interview_date >= today,
+        Job.status == "Interview"
+    )
+    if user_id:
+        q = q.filter(Job.user_id == user_id)
+    jobs = q.order_by(Job.interview_date.asc()).all()
 
+    result = []
+    for j in jobs:
+        days_until = (j.interview_date - today).days
+        result.append({
+            "id":             j.id,
+            "company":        j.company,
+            "role":           j.role,
+            "interview_date": str(j.interview_date),
+            "days_until":     days_until,
+            "location":       j.location,
+            "source":         j.source
+        })
+
+    return {
+        "total_upcoming": len(result),
+        "interviews":     result
+    }
  

@@ -15,6 +15,7 @@ class Job(Base):
     source         = Column(String(50))
     job_url        = Column(String(300))
     notes          = Column(String(500))
+    interview_date = Column(Date, nullable=True)
     date_applied   = Column(Date)
     created_at     = Column(DateTime, server_default=func.now())
 

@@ -12,6 +12,7 @@ class JobCreate(BaseModel):
     job_url:        Optional[str] = None
     notes:          Optional[str] = None
     date_applied:   Optional[date] = None
+    interview_date: Optional[date] = None
     user_id:        Optional[int] = None
 
 class JobResponse(JobCreate):

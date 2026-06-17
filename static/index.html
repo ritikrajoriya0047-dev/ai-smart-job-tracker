@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light"></html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,6 +20,15 @@
 .ref-status-responded { background:#d1e7dd; color:#0a3622; padding:2px 10px; border-radius:20px; font-size:12px; }
 .app-section { width:100%; max-width:1280px; margin:0 auto; padding:24px; }
 .app-section .card { width:100%; }
+[data-bs-theme="dark"] body { background-color: #121212 !important; }
+[data-bs-theme="dark"] .bg-light { background-color: #121212 !important; }
+[data-bs-theme="dark"] .card { background-color: #1e1e1e; border-color: #333; }
+[data-bs-theme="dark"] .text-muted { color: #aaa !important; }
+[data-bs-theme="dark"] .table { color: #e0e0e0; }
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select { background-color: #2a2a2a; color: #e0e0e0; border-color: #444; }
+[data-bs-theme="dark"] .form-control::placeholder { color: #888; }
+[data-bs-theme="dark"] .table-hover > tbody > tr:hover { background-color: #2a2a2a; color: #fff; }
   </style>
 </head>
 <body class="bg-light">
@@ -33,6 +42,16 @@
     <button class="nav-link-btn" onclick="showSection('referral', this)">Referrals</button>
     <span class="text-white small ms-2" id="nav-user"></span>
     <a href="/docs" target="_blank" class="btn btn-outline-light btn-sm ms-1">API Docs</a>
+    <div class="dropdown">
+      <button class="btn btn-outline-light btn-sm position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        🔔
+        <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle" id="bell-badge" style="display:none">0</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end p-2" style="width:340px;max-height:400px;overflow-y:auto" id="bell-dropdown">
+        <li class="text-muted small px-2">No follow-ups needed right now.</li>
+      </ul>
+    </div>
+    <button class="btn btn-outline-light btn-sm" id="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
     <button class="btn btn-outline-danger btn-sm" onclick="logout()">Logout</button>
   </div>
 </nav>
@@ -62,18 +81,18 @@
       </div>
     </div>
   </div>
-
-  <!-- Follow-up Reminders -->
-  <div class="card mb-4 border-warning" id="followup-section" style="display:none">
+<!-- Upcoming Interviews -->
+  <div class="card mb-4 border-success" id="interview-section" style="display:none">
     <div class="card-body">
       <div class="d-flex align-items-center gap-2 mb-3">
-        <h5 class="card-title mb-0">🔔 Follow-up Reminders</h5>
-        <span class="badge bg-warning text-dark" id="followup-badge">0</span>
+        <h5 class="card-title mb-0">📅 Upcoming Interviews</h5>
+        <span class="badge bg-success" id="interview-badge">0</span>
       </div>
-      <p class="text-muted small mb-3">These jobs have been in <strong>Applied</strong> status for more than 7 days with no response. Time to follow up!</p>
-      <div id="followup-list"></div>
+      <p class="text-muted small mb-3">Your scheduled interviews sorted by date. Good luck!</p>
+      <div id="interview-list"></div>
     </div>
   </div>
+  
 
   <div class="card mb-4 border-info">
     <div class="card-body">
@@ -278,6 +297,7 @@ let notesModal  = null;
 let lastSkills  = [];
 
 window.onload = () => {
+  applyStoredTheme();
   const userName = localStorage.getItem('user_name');
   if (!userName) { window.location.href = '/login-page'; return; }
   document.getElementById('nav-user').textContent = 'Hi, ' + userName + '!';
@@ -286,8 +306,32 @@ window.onload = () => {
   loadJobs();
   loadPredictor();
   loadFollowups();
+  loadUpcomingInterviews();
 };
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn  = document.getElementById('theme-toggle');
+  const isDark = html.getAttribute('data-bs-theme') === 'dark';
 
+  if (isDark) {
+    html.setAttribute('data-bs-theme', 'light');
+    btn.textContent = '🌙 Dark Mode';
+    localStorage.setItem('theme', 'light');
+  } else {
+    html.setAttribute('data-bs-theme', 'dark');
+    btn.textContent = '☀️ Light Mode';
+    localStorage.setItem('theme', 'dark');
+  }
+}
+
+function applyStoredTheme() {
+  const stored = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-bs-theme', stored);
+  const btn = document.getElementById('theme-toggle');
+  if (btn) {
+    btn.textContent = stored === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+  }
+}
 function logout() {
   localStorage.removeItem('user_name');
   localStorage.removeItem('user_email');
@@ -303,58 +347,110 @@ function showSection(name, btn) {
   if (btn) btn.classList.add('active');
   if (name === 'referral') loadReferrals();
 }
+async function loadUpcomingInterviews() {
+  const userId = localStorage.getItem('user_id');
+  try {
+    const data = await fetch(`/analytics/upcoming-interviews?user_id=${userId}`).then(r => r.json());
+    const section = document.getElementById('interview-section');
+    const badge   = document.getElementById('interview-badge');
+    const list    = document.getElementById('interview-list');
 
+    if (data.total_upcoming === 0) { section.style.display = 'none'; return; }
+
+    section.style.display = 'block';
+    badge.textContent = data.total_upcoming;
+
+    list.innerHTML = data.interviews.map(j => {
+      const urgency = j.days_until === 0 ? 'danger' : j.days_until <= 2 ? 'warning' : 'success';
+      const label   = j.days_until === 0 ? 'Today!' : j.days_until === 1 ? 'Tomorrow!' : `In ${j.days_until} days`;
+      return `
+        <div class="d-flex align-items-center justify-content-between p-2 mb-2 rounded border border-success bg-success bg-opacity-10">
+          <div>
+            <strong>${j.company}</strong>
+            <span class="text-muted ms-2 small">${j.role}</span>
+            ${j.location ? `<span class="text-muted ms-2 small">📍 ${j.location}</span>` : ''}
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <span class="text-muted small">📅 ${j.interview_date}</span>
+            <span class="badge bg-${urgency}">${label}</span>
+            <button class="btn btn-outline-success btn-sm" onclick="scrollToJob(${j.id})">View</button>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) { console.log('Interview section error:', e); }
+}
 async function loadFollowups() {
   const userId = localStorage.getItem('user_id');
   try {
     const data = await fetch(`/analytics/followups?user_id=${userId}`).then(r => r.json());
-    const section = document.getElementById('followup-section');
-    const badge   = document.getElementById('followup-badge');
-    const list    = document.getElementById('followup-list');
+    const badge    = document.getElementById('bell-badge');
+    const dropdown = document.getElementById('bell-dropdown');
 
     if (data.total_followups === 0) {
-      section.style.display = 'none';
+      badge.style.display = 'none';
+      dropdown.innerHTML = '<li class="text-muted small px-2">No follow-ups needed right now.</li>';
       return;
     }
 
-    section.style.display = 'block';
+    badge.style.display = 'inline-block';
     badge.textContent = data.total_followups;
 
-    list.innerHTML = data.jobs.map(j => `
-      <div class="d-flex align-items-center justify-content-between
-        p-2 mb-2 rounded border border-warning bg-warning bg-opacity-10">
-        <div>
-          <strong>${j.company}</strong>
-          <span class="text-muted ms-2 small">${j.role}</span>
+    dropdown.innerHTML = `
+      <li class="px-2 pb-2 mb-1 border-bottom">
+        <strong class="small">🔔 Follow-up Reminders</strong>
+        <p class="text-muted small mb-0">Applied 7+ days ago, still waiting.</p>
+      </li>
+    ` + data.jobs.map(j => `
+      <li class="px-2 py-2 border-bottom">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <strong class="small">${j.company}</strong>
+            <div class="text-muted small">${j.role}</div>
+          </div>
+          <span class="badge bg-danger small">${j.days_waiting}d</span>
         </div>
-        <div class="d-flex align-items-center gap-3">
-          <span class="text-muted small">Applied: ${j.date_applied}</span>
-          <span class="badge bg-danger">${j.days_waiting} days waiting</span>
-          <button class="btn btn-outline-warning btn-sm"
-            onclick="scrollToJob(${j.id})">View Job</button>
-        </div>
-      </div>`).join('');
+        <button class="btn btn-outline-warning btn-sm mt-1 w-100"
+          onclick="scrollToJob(${j.id})">View Job</button>
+      </li>
+    `).join('');
   } catch(e) {
     console.log('Followup error:', e);
   }
 }
-
 function scrollToJob(jobId) {
+  const dropdownEl = document.getElementById('bell-dropdown');
+  if (dropdownEl && dropdownEl.classList.contains('show')) {
+    dropdownEl.classList.remove('show');
+  }
+
   showSection('dashboard', document.querySelectorAll('.nav-link-btn')[0]);
+
+  document.getElementById('search-company').value = '';
+  document.getElementById('filter-status').value  = '';
+  document.getElementById('filter-source').value  = '';
+  renderJobs(allJobs);
+
   setTimeout(() => {
-    const rows = document.querySelectorAll('#jobs-body tr');
-    rows.forEach(row => {
+    document.querySelectorAll('#jobs-body tr').forEach(row => {
+      row.style.outline = '';
       row.style.background = '';
     });
-    const job = allJobs.find(j => j.id === jobId);
-    if (job) {
-      const index = allJobs.indexOf(job);
-      if (rows[index]) {
-        rows[index].style.background = 'rgba(255, 193, 7, 0.2)';
-        rows[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+
+    const targetRow = document.querySelector(`tr[data-job-id="${jobId}"]`);
+    console.log('Looking for job id:', jobId, 'Found row:', targetRow);
+
+    if (targetRow) {
+      targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      targetRow.style.outline = '3px solid #ffc107';
+      targetRow.style.background = '#fff3cd';
+      setTimeout(() => {
+        targetRow.style.outline = '';
+        targetRow.style.background = '';
+      }, 3000);
+    } else {
+      console.log('Row not found for job id', jobId);
     }
-  }, 100);
+  }, 200);
 }
 
 // ========== DASHBOARD ==========
@@ -411,20 +507,28 @@ function renderJobs(jobs) {
   noResults.classList.add('d-none');
   jobs.forEach((j, index) => {
     tbody.innerHTML += `
-      <tr>
+      <tr data-job-id="${j.id}">
         <td>${index + 1}</td>
         <td>${j.company}</td>
         <td>${j.role}</td>
         <td>
-          <select class="form-select form-select-sm status-select"
-            onchange="updateStatus(${j.id}, this.value, ${j.user_id}); applyStatusColor(this)"
-            style="min-width:120px;font-weight:500;border-radius:20px;font-size:12px">
-            <option value="Applied"   ${j.status==='Applied'   ? 'selected':''}>🔵 Applied</option>
-            <option value="Screening" ${j.status==='Screening' ? 'selected':''}>🟡 Screening</option>
-            <option value="Interview" ${j.status==='Interview' ? 'selected':''}>🟠 Interview</option>
-            <option value="Offer"     ${j.status==='Offer'     ? 'selected':''}>🟢 Offer</option>
-            <option value="Rejected"  ${j.status==='Rejected'  ? 'selected':''}>🔴 Rejected</option>
-          </select>
+          <div class="d-flex align-items-center gap-1">
+            <select class="form-select form-select-sm status-select"
+              onchange="handleStatusChange(${j.id}, this.value, ${j.user_id}, this)"
+              style="min-width:120px;font-weight:500;border-radius:20px;font-size:12px">
+              <option value="Applied"   ${j.status==='Applied'   ? 'selected':''}>🔵 Applied</option>
+              <option value="Screening" ${j.status==='Screening' ? 'selected':''}>🟡 Screening</option>
+              <option value="Interview" ${j.status==='Interview' ? 'selected':''}>🟠 Interview</option>
+              <option value="Offer"     ${j.status==='Offer'     ? 'selected':''}>🟢 Offer</option>
+              <option value="Rejected"  ${j.status==='Rejected'  ? 'selected':''}>🔴 Rejected</option>
+            </select>
+            ${j.status === 'Interview' ? `
+              <input type="date" class="form-control form-control-sm" style="width:130px"
+                value="${j.interview_date || ''}"
+                onchange="setInterviewDate(${j.id}, this.value, ${j.user_id})"
+                title="Interview Date">
+            ` : ''}
+          </div>
         </td>
         <td>${j.location||'-'}</td>
         <td>${j.source||'-'}</td>
@@ -461,7 +565,20 @@ function clearFilters() {
   renderJobs(allJobs);
 }
 
-async function updateStatus(jobId, newStatus, userId) {
+async function handleStatusChange(jobId, newStatus, userId, selectEl) {
+  applyStatusColor(selectEl);
+
+  if (newStatus === 'Interview') {
+    // Re-render this row immediately to show the date input
+    const job = allJobs.find(j => j.id === jobId);
+    if (job) job.status = newStatus;
+    await updateStatus(jobId, newStatus, userId, true);
+  } else {
+    await updateStatus(jobId, newStatus, userId);
+  }
+}
+
+async function updateStatus(jobId, newStatus, userId, skipRerender) {
   try {
     const job = allJobs.find(j => j.id === jobId);
     if (!job) return;
@@ -469,21 +586,40 @@ async function updateStatus(jobId, newStatus, userId) {
       company:job.company, role:job.role, status:newStatus,
       location:job.location, salary:job.salary, source:job.source,
       job_url:job.job_url, notes:job.notes,
-      date_applied:job.date_applied, user_id:userId
+      date_applied:job.date_applied, interview_date:job.interview_date, user_id:userId
     };
     const resp = await fetch(`/jobs/${jobId}`, {
       method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
     });
-    if (resp.ok) { loadStats(); loadJobs(); loadPredictor(); loadFollowups(); }
-    else alert('Failed to update status!');
+    if (resp.ok) {
+      loadStats(); loadJobs(); loadPredictor(); loadFollowups(); loadUpcomingInterviews();
+    } else {
+      alert('Failed to update status!');
+    }
   } catch(e) { console.log('Update error:', e); }
+}
+
+async function setInterviewDate(jobId, dateValue, userId) {
+  if (!dateValue) return;
+  const job = allJobs.find(j => j.id === jobId);
+  if (!job) return;
+  const body = {
+    company:job.company, role:job.role, status:'Interview',
+    location:job.location, salary:job.salary, source:job.source,
+    job_url:job.job_url, notes:job.notes,
+    date_applied:job.date_applied, interview_date:dateValue, user_id:userId
+  };
+  await fetch(`/jobs/${jobId}`, {
+    method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+  });
+  loadJobs(); loadUpcomingInterviews();
 }
 
 async function deleteJob(jobId) {
   if (!confirm('Are you sure you want to delete this job application?')) return;
   const resp = await fetch(`/jobs/${jobId}`, { method: 'DELETE' });
   if (resp.ok) {
-    loadStats(); loadJobs(); loadPredictor(); loadFollowups();
+    loadStats(); loadJobs(); loadPredictor(); loadFollowups();loadUpcomingInterviews();
   } else {
     alert('Failed to delete job!');
   }
@@ -508,7 +644,7 @@ async function addJob() {
   document.getElementById('role').value         = '';
   document.getElementById('location').value     = '';
   document.getElementById('date_applied').value = '';
-  loadStats(); loadJobs(); loadPredictor(); loadFollowups();
+  loadStats(); loadJobs(); loadPredictor(); loadFollowups();loadUpcomingInterviews();
 }
 
 // ========== NOTES ==========
