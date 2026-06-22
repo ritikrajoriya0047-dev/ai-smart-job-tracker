@@ -6,12 +6,13 @@ import os
 
 load_dotenv()
 
-DB_URL = (
-    f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
-    f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-)
+DB_URL = os.getenv("DATABASE_URL")
 
-engine = create_engine(DB_URL)
+if not DB_URL:
+    raise ValueError("DATABASE_URL environment variable is not set!")
+
+# Neon requires SSL — add connect_args for safety
+engine = create_engine(DB_URL, connect_args={"sslmode": "require"})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 

@@ -1,23 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>AI Smart Job Tracker</title>
+  <meta charset="UTF-8">
+  <title>My FastAPI Project</title>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; }
+    button { padding: 8px 18px; background: #2d7d46; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    pre { background: #f4f4f4; padding: 16px; border-radius: 6px; overflow-x: auto; }
+  </style>
 </head>
 <body>
-    <h1>AI Smart Job Tracker</h1>
-    <p>Internship Project by Ritik Rajoriya</p>
+  <h1>My FastAPI + PostgreSQL Project</h1>
+  <p>Live API demo running on Render + Neon.</p>
 
-    <h2>Features</h2>
-    <ul>
-        <li>Job Management</li>
-        <li>Resume Parser</li>
-        <li>Analytics</li>
-        <li>Referral Tracker</li>
-        <li>AI Recommendations</li>
-    </ul>
+  <button onclick="fetchData()">Try the API</button>
+  <pre id="output">Click the button to call the live API...</pre>
 
-    <p>GitHub Repository:
-        <a href="https://github.com/ritikrajoriya0047-dev/ai-smart-job-tracker">View Project</a>
-    </p>
+  <script>
+    async function fetchData() {
+      const res = await fetch("https://ai-smart-job-tracker.onrender.com");
+      const data = await res.json();
+      document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
 </body>
 </html>
