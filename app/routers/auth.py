@@ -17,13 +17,15 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 @router.post("/register", response_model=schemas.UserResponse, status_code=201)
 def register(data: schemas.UserRegister, db: Session = Depends(get_db)):
+    if len(data.password) > 72:
+        raise HTTPException(status_code=400, detail="Password must be 72 characters or less")
     existing = db.query(User).filter(User.email == data.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
     user = User(
-        name     = data.name,
-        email    = data.email,
-        password = hash_password(data.password)
+        name=data.name,
+        email=data.email,
+        password=hash_password(data.password)
     )
     db.add(user)
     db.commit()
@@ -38,26 +40,6 @@ def login(data: schemas.UserLogin, db: Session = Depends(get_db)):
     return {
         "message": "Login successful",
         "user_id": user.id,
-        "name":    user.name,
-        "email":   user.email
+        "name": user.name,
+        "email": user.email
     }
-
-@router.post("/auth/register", response_model=schemas.UserResponse, status_code=201)
-def register(data: schemas.UserRegister, db: Session = Depends(get_db)):
-    # ✅ Password length check
-    if len(data.password) > 72:
-        raise HTTPException(status_code=400, detail="Password must be 72 characters or less")
-    
-    existing = db.query(User).filter(User.email == data.email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    user = User(
-        name=data.name,
-        email=data.email,
-        password=hash_password(data.password)
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
