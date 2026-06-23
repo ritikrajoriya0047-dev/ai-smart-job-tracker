@@ -21,6 +21,12 @@ app = FastAPI(
     description="Track and manage your job applications",
     version="1.0.0"
 )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://ritikrajoriya0047-dev.github.io"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -52,9 +58,3 @@ def dashboard():
     with open("static/index.html", "r", encoding="utf-8") as f:
         return f.read()
     
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["https://ritikrajoriya0047-dev.github.io"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
