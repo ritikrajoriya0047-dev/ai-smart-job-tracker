@@ -2,26 +2,485 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>My FastAPI Project</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Smart Job Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
   <style>
-    body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; }
-    button { padding: 8px 18px; background: #2d7d46; color: white; border: none; border-radius: 6px; cursor: pointer; }
-    pre { background: #f4f4f4; padding: 16px; border-radius: 6px; overflow-x: auto; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #0f0f0f; --ink-2: #4a4a4a; --ink-3: #8a8a8a;
+      --bg: #ffffff; --bg-2: #f7f7f5; --bg-3: #efefec;
+      --accent: #1a6b3c; --accent-light: #e8f4ee; --accent-mid: #2d8a52;
+      --border: #e2e2de; --radius: 8px;
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--ink); line-height: 1.6; font-size: 15px; }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px; height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-brand { font-family: var(--font-display); font-size: 18px; color: var(--ink); text-decoration: none; }
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links a { text-decoration: none; font-size: 13px; color: var(--ink-2); font-weight: 500; transition: color 0.15s; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-pill { background: var(--accent); color: white !important; padding: 6px 16px; border-radius: 100px; }
+
+    .hero { max-width: 760px; margin: 0 auto; padding: 80px 40px 72px; text-align: center; }
+    .hero-tag {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent); background: var(--accent-light);
+      padding: 4px 12px; border-radius: 100px; margin-bottom: 24px;
+    }
+    .hero h1 { font-family: var(--font-display); font-size: clamp(36px,6vw,56px); line-height: 1.1; letter-spacing: -1px; margin-bottom: 20px; }
+    .hero h1 em { font-style: italic; color: var(--accent); }
+    .hero p { font-size: 17px; color: var(--ink-2); max-width: 520px; margin: 0 auto 36px; line-height: 1.7; }
+    .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 22px; border-radius: var(--radius);
+      font-size: 14px; font-weight: 500; font-family: var(--font-body);
+      cursor: pointer; text-decoration: none; transition: all 0.15s; border: none;
+    }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-mid); transform: translateY(-1px); }
+    .btn-ghost { background: transparent; color: var(--ink-2); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--ink-3); color: var(--ink); }
+
+    section { padding: 64px 40px; max-width: 900px; margin: 0 auto; }
+    .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px; }
+    .section-title { font-family: var(--font-display); font-size: 30px; letter-spacing: -0.5px; margin-bottom: 32px; color: var(--ink); }
+    hr.divider { border: none; border-top: 1px solid var(--border); max-width: 900px; margin: 0 auto; }
+
+    /* FEATURE CARDS */
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    .feature-card {
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px;
+    }
+    .feature-icon { font-size: 22px; margin-bottom: 10px; }
+    .feature-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 6px; color: var(--ink); }
+    .feature-card p { font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+
+    /* STACK */
+    .stack-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border: 1px solid var(--border);
+      border-radius: 100px; font-size: 12px; font-weight: 500;
+      color: var(--ink-2); background: var(--bg-2);
+    }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    /* DEMO */
+    .demo-panel { background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .demo-bar {
+      background: var(--bg-3); border-bottom: 1px solid var(--border);
+      padding: 10px 16px; display: flex; align-items: center; gap: 10px;
+    }
+    .demo-dots { display: flex; gap: 6px; }
+    .demo-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .demo-url {
+      font-size: 11px; color: var(--ink-3); background: var(--bg);
+      border: 1px solid var(--border); border-radius: 4px;
+      padding: 3px 10px; flex: 1; max-width: 380px; font-family: monospace;
+    }
+    .demo-body { padding: 24px; }
+
+    .ep-tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+    .ep-tab {
+      padding: 6px 14px; border-radius: 6px; font-size: 12px;
+      font-weight: 500; font-family: monospace; cursor: pointer;
+      border: 1px solid var(--border); background: var(--bg);
+      color: var(--ink-2); transition: all 0.15s;
+    }
+    .ep-tab:hover { border-color: var(--accent); color: var(--accent); }
+    .ep-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .method { font-size: 10px; font-weight: 700; margin-right: 4px; opacity: 0.75; }
+
+    .ep-desc {
+      font-size: 13px; color: var(--ink-2);
+      background: var(--accent-light); border-left: 3px solid var(--accent);
+      padding: 10px 14px; border-radius: 0 6px 6px 0; margin-bottom: 16px;
+    }
+
+    .req-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media(max-width:600px) { .req-row { grid-template-columns: 1fr; } }
+    .req-box { display: flex; flex-direction: column; gap: 6px; }
+    .req-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+    .req-input {
+      width: 100%; padding: 9px 12px; border: 1px solid var(--border);
+      border-radius: var(--radius); font-size: 13px;
+      font-family: var(--font-body); color: var(--ink); background: var(--bg);
+      outline: none; transition: border-color 0.15s;
+    }
+    .req-input:focus { border-color: var(--accent); }
+
+    .send-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 20px; background: var(--accent); color: white;
+      border: none; border-radius: var(--radius); font-size: 13px;
+      font-weight: 500; font-family: var(--font-body); cursor: pointer;
+      transition: background 0.15s; margin-top: 14px;
+    }
+    .send-btn:hover { background: var(--accent-mid); }
+    .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .res-area {
+      margin-top: 16px; background: #0f0f0f;
+      border-radius: var(--radius); padding: 16px; min-height: 90px;
+    }
+    .res-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .res-label { font-size: 11px; color: #666; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+    .status-pill { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 100px; display: none; }
+    .status-pill.ok { background: #14532d; color: #86efac; display: inline-block; }
+    .status-pill.err { background: #450a0a; color: #fca5a5; display: inline-block; }
+    .status-pill.loading { background: #1c1917; color: #a3a3a3; display: inline-block; }
+    .res-code { font-family: monospace; font-size: 12px; color: #a3e635; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+    .res-placeholder { color: #444; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+    .send-btn.loading .spinner { display: inline-block; }
+    .send-btn.loading .btn-text { opacity: 0.6; }
+
+    /* WAKE UP BANNER */
+    .wake-banner {
+      background: #fefce8; border: 1px solid #fde68a;
+      border-radius: var(--radius); padding: 10px 14px;
+      font-size: 13px; color: #92400e; margin-bottom: 16px;
+      display: none;
+    }
+    .wake-banner.show { display: block; }
+
+    footer {
+      border-top: 1px solid var(--border); padding: 32px 40px;
+      max-width: 900px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+    .footer-brand { font-family: var(--font-display); font-size: 16px; color: var(--ink); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: 13px; color: var(--ink-3); text-decoration: none; transition: color 0.15s; }
+    .footer-links a:hover { color: var(--accent); }
   </style>
 </head>
 <body>
-  <h1>My FastAPI + PostgreSQL Project</h1>
-  <p>Live API demo running on Render + Neon.</p>
 
-  <button onclick="fetchData()">Try the API</button>
-  <pre id="output">Click the button to call the live API...</pre>
+<nav>
+  <a class="nav-brand" href="#">AI Smart Job Tracker</a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#demo">Live Demo</a>
+    <a href="https://ai-smart-job-tracker.onrender.com/docs" target="_blank">API Docs</a>
+    <a href="https://github.com/ritikrajoriya0047-dev" target="_blank" class="nav-pill">GitHub ↗</a>
+  </div>
+</nav>
 
-  <script>
-    async function fetchData() {
-      const res = await fetch("https://ai-smart-job-tracker.onrender.com");
+<!-- HERO -->
+<div class="hero">
+  <span class="hero-tag">FastAPI · PostgreSQL · Neon · Render</span>
+  <h1>Track every job.<br><em>Land the right one.</em></h1>
+  <p>A full-stack AI-powered job application tracker with authentication, analytics, resume tools, and smart recommendations — deployed live.</p>
+  <div class="hero-actions">
+    <a href="#demo" class="btn btn-primary">Try the live API →</a>
+    <a href="https://ai-smart-job-tracker.onrender.com/docs" target="_blank" class="btn btn-ghost">Swagger docs ↗</a>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-label">What it does</div>
+  <div class="section-title">Key features</div>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🔐</div>
+      <h3>Auth system</h3>
+      <p>Register and login with bcrypt-hashed passwords. Secure user sessions.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💼</div>
+      <h3>Job tracking</h3>
+      <p>Add, update, and manage all your job applications in one place.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Analytics</h3>
+      <p>Visualize your application pipeline — applied, interview, offer, rejected.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <h3>AI recommendations</h3>
+      <p>Smart job recommendations based on your profile and application history.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📄</div>
+      <h3>Resume tools</h3>
+      <p>Resume analysis and suggestions tailored to job descriptions.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔍</div>
+      <h3>Smart search</h3>
+      <p>Search and filter jobs with advanced query support.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <h3>Predictor</h3>
+      <p>Predict your chances of getting a callback based on your application data.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📝</div>
+      <h3>Notes</h3>
+      <p>Add personal notes to each job application for interview prep.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- STACK -->
+<section id="stack">
+  <div class="section-label">Built with</div>
+  <div class="section-title">Tech stack</div>
+  <div class="stack-row">
+    <span class="badge"><span class="badge-dot" style="background:#3776ab"></span>Python · FastAPI</span>
+    <span class="badge"><span class="badge-dot" style="background:#336791"></span>PostgreSQL · Neon</span>
+    <span class="badge"><span class="badge-dot" style="background:#e74c3c"></span>SQLAlchemy ORM</span>
+    <span class="badge"><span class="badge-dot" style="background:#f39c12"></span>Pydantic schemas</span>
+    <span class="badge"><span class="badge-dot" style="background:#6c5ce7"></span>Passlib · bcrypt</span>
+    <span class="badge"><span class="badge-dot" style="background:#2ecc71"></span>Render (backend)</span>
+    <span class="badge"><span class="badge-dot" style="background:#24292e"></span>GitHub Pages</span>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- DEMO -->
+<section id="demo">
+  <div class="section-label">Interactive</div>
+  <div class="section-title">Live API demo</div>
+
+  <div class="wake-banner" id="wake-banner">
+    ⏳ Server is waking up (free tier sleeps after inactivity) — this may take 20–30 seconds. Please wait…
+  </div>
+
+  <div class="demo-panel">
+    <div class="demo-bar">
+      <div class="demo-dots">
+        <div class="demo-dot" style="background:#ff5f57"></div>
+        <div class="demo-dot" style="background:#ffbd2e"></div>
+        <div class="demo-dot" style="background:#28ca41"></div>
+      </div>
+      <div class="demo-url">https://ai-smart-job-tracker.onrender.com</div>
+    </div>
+    <div class="demo-body">
+
+      <div class="ep-tabs">
+        <button class="ep-tab active" onclick="selectTab(this,'health')"><span class="method">GET</span>/health</button>
+        <button class="ep-tab" onclick="selectTab(this,'register')"><span class="method">POST</span>/auth/register</button>
+        <button class="ep-tab" onclick="selectTab(this,'login')"><span class="method">POST</span>/auth/login</button>
+        <button class="ep-tab" onclick="selectTab(this,'swaggerlink')"><span class="method">GET</span>/docs</button>
+      </div>
+
+      <!-- HEALTH -->
+      <div id="tab-health">
+        <div class="ep-desc">Ping the server to confirm it's live and the database is connected.</div>
+        <button class="send-btn" onclick="callHealth(this)">
+          <div class="spinner"></div><span class="btn-text">Send request</span>
+        </button>
+        <div class="res-area">
+          <div class="res-header">
+            <span class="res-label">Response</span>
+            <span class="status-pill" id="health-status"></span>
+          </div>
+          <div class="res-code res-placeholder" id="health-out">// Response will appear here</div>
+        </div>
+      </div>
+
+      <!-- REGISTER -->
+      <div id="tab-register" style="display:none">
+        <div class="ep-desc">Create a new user account. Sends <code>{ name, email, password }</code> as JSON. Returns the created user object.</div>
+        <div class="req-row">
+          <div class="req-box">
+            <label class="req-label">Name</label>
+            <input class="req-input" id="reg-name" type="text" placeholder="Ritik Rajoriya" value="Demo User">
+          </div>
+          <div class="req-box">
+            <label class="req-label">Email</label>
+            <input class="req-input" id="reg-email" type="email" placeholder="user@example.com" value="demo@example.com">
+          </div>
+          <div class="req-box">
+            <label class="req-label">Password</label>
+            <input class="req-input" id="reg-pass" type="password" placeholder="••••••••" value="demo1234">
+          </div>
+        </div>
+        <button class="send-btn" onclick="callRegister(this)">
+          <div class="spinner"></div><span class="btn-text">Register user</span>
+        </button>
+        <div class="res-area">
+          <div class="res-header">
+            <span class="res-label">Response</span>
+            <span class="status-pill" id="reg-status"></span>
+          </div>
+          <div class="res-code res-placeholder" id="reg-out">// Response will appear here</div>
+        </div>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="tab-login" style="display:none">
+        <div class="ep-desc">Login with your credentials. Sends <code>{ email, password }</code> as JSON. Returns user info on success.</div>
+        <div class="req-row">
+          <div class="req-box">
+            <label class="req-label">Email</label>
+            <input class="req-input" id="login-email" type="email" placeholder="user@example.com" value="demo@example.com">
+          </div>
+          <div class="req-box">
+            <label class="req-label">Password</label>
+            <input class="req-input" id="login-pass" type="password" placeholder="••••••••" value="demo1234">
+          </div>
+        </div>
+        <button class="send-btn" onclick="callLogin(this)">
+          <div class="spinner"></div><span class="btn-text">Login</span>
+        </button>
+        <div class="res-area">
+          <div class="res-header">
+            <span class="res-label">Response</span>
+            <span class="status-pill" id="login-status"></span>
+          </div>
+          <div class="res-code res-placeholder" id="login-out">// Response will appear here</div>
+        </div>
+      </div>
+
+      <!-- SWAGGER LINK -->
+      <div id="tab-swaggerlink" style="display:none">
+        <div class="ep-desc">Full interactive API documentation with all 9 routers — jobs, analytics, search, resume, referral, recommend, predictor, notes, auth.</div>
+        <a href="https://ai-smart-job-tracker.onrender.com/docs" target="_blank" class="send-btn" style="text-decoration:none; margin-top:0">
+          <span class="btn-text">Open Swagger UI ↗</span>
+        </a>
+        <div class="res-area" style="min-height:60px">
+          <div class="res-code res-placeholder">// Opens full interactive docs in a new tab</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<footer>
+  <span class="footer-brand">AI Smart Job Tracker</span>
+  <div class="footer-links">
+    <a href="https://ai-smart-job-tracker.onrender.com/docs" target="_blank">API Docs</a>
+    <a href="https://github.com/ritikrajoriya0047-dev" target="_blank">GitHub</a>
+    <a href="https://neon.tech" target="_blank">Powered by Neon</a>
+  </div>
+</footer>
+
+<script>
+  const API = "https://ai-smart-job-tracker.onrender.com";
+
+  function selectTab(el, name) {
+    document.querySelectorAll('.ep-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    ['health','register','login','swaggerlink'].forEach(id => {
+      document.getElementById('tab-' + id).style.display = id === name ? 'block' : 'none';
+    });
+  }
+
+  function setLoading(btn, on) {
+    btn.disabled = on;
+    btn.classList.toggle('loading', on);
+  }
+
+  function showResult(outId, statusId, data, ok, statusCode) {
+    const out = document.getElementById(outId);
+    const pill = document.getElementById(statusId);
+    out.classList.remove('res-placeholder');
+    out.style.color = ok ? '#a3e635' : '#fca5a5';
+    out.textContent = JSON.stringify(data, null, 2);
+    pill.textContent = statusCode ? statusCode + (ok ? ' OK' : ' Error') : (ok ? '✓ Success' : '✗ Error');
+    pill.className = 'status-pill ' + (ok ? 'ok' : 'err');
+    document.getElementById('wake-banner').classList.remove('show');
+  }
+
+  async function callHealth(btn) {
+    setLoading(btn, true);
+    const pill = document.getElementById('health-status');
+    pill.textContent = 'Sending…'; pill.className = 'status-pill loading';
+    document.getElementById('wake-banner').classList.add('show');
+    try {
+      const res = await fetch(API + '/health');
       const data = await res.json();
-      document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+      showResult('health-out', 'health-status', data, res.ok, res.status);
+    } catch(e) {
+      document.getElementById('health-out').textContent = '{ "error": "' + e.message + '",\n  "tip": "Server may be waking up — wait 30s and try again." }';
+      document.getElementById('health-out').style.color = '#fca5a5';
+      pill.textContent = 'Failed'; pill.className = 'status-pill err';
+      document.getElementById('wake-banner').classList.remove('show');
     }
-  </script>
+    setLoading(btn, false);
+  }
+
+  async function callRegister(btn) {
+    setLoading(btn, true);
+    const pill = document.getElementById('reg-status');
+    pill.textContent = 'Sending…'; pill.className = 'status-pill loading';
+    document.getElementById('wake-banner').classList.add('show');
+    try {
+      const res = await fetch(API + '/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: document.getElementById('reg-name').value,
+          email: document.getElementById('reg-email').value,
+          password: document.getElementById('reg-pass').value
+        })
+      });
+      const data = await res.json();
+      showResult('reg-out', 'reg-status', data, res.ok, res.status);
+    } catch(e) {
+      document.getElementById('reg-out').textContent = '{ "error": "' + e.message + '" }';
+      document.getElementById('reg-out').style.color = '#fca5a5';
+      pill.textContent = 'Failed'; pill.className = 'status-pill err';
+      document.getElementById('wake-banner').classList.remove('show');
+    }
+    setLoading(btn, false);
+  }
+
+  async function callLogin(btn) {
+    setLoading(btn, true);
+    const pill = document.getElementById('login-status');
+    pill.textContent = 'Sending…'; pill.className = 'status-pill loading';
+    document.getElementById('wake-banner').classList.add('show');
+    try {
+      const res = await fetch(API + '/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: document.getElementById('login-email').value,
+          password: document.getElementById('login-pass').value
+        })
+      });
+      const data = await res.json();
+      showResult('login-out', 'login-status', data, res.ok, res.status);
+    } catch(e) {
+      document.getElementById('login-out').textContent = '{ "error": "' + e.message + '" }';
+      document.getElementById('login-out').style.color = '#fca5a5';
+      pill.textContent = 'Failed'; pill.className = 'status-pill err';
+      document.getElementById('wake-banner').classList.remove('show');
+    }
+    setLoading(btn, false);
+  }
+</script>
 </body>
 </html>
