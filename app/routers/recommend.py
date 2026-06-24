@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from collections import Counter
+
 from app.database import get_db
 from app.models import Job
 
@@ -319,36 +321,38 @@ SKILL_JOB_MAP = {
 
 @router.post("/")
 def get_recommendations(skills: list[str], db: Session = Depends(get_db)):
+    """
+    Recommend job roles based on a user's skillset.
+    Uses a predefined skill-to-role map and filters out roles the user has already applied for.
+    """
     skills_lower = [s.lower().strip() for s in skills]
 
     # Find matching job roles from skill map
-    matched_roles = []
-    matched_skills = []
-    for skill in skills_lower:
-        if skill in SKILL_JOB_MAP:
-            matched_skills.append(skill)
-            matched_roles.extend(SKILL_JOB_MAP[skill])
+    matched_skills = [skill for skill in skills_lower if skill in SKILL_JOB_MAP]
+    
+    # Flatten the list of roles for matched skills
+    matched_roles = [role for skill in matched_skills for role in SKILL_JOB_MAP[skill]]
 
-    # Remove duplicates and count frequency
-    role_score = {}
-    for role in matched_roles:
-        role_score[role] = role_score.get(role, 0) + 1
+    # Count frequency of each role to determine the best match
+    role_scores = Counter(matched_roles)
 
-    # Sort by highest match score
-    sorted_roles = sorted(role_score.items(), key=lambda x: x[1], reverse=True)
-    top_roles = [{"role": r, "match_score": s} for r, s in sorted_roles[:5]]
+    # Extract the top 5 matching roles
+    top_roles = [{"role": role, "match_score": score} for role, score in role_scores.most_common(5)]
 
-    # Check which roles you have NOT applied to yet
-    applied_roles = [j.role.lower() for j in db.query(Job).all()]
+    # Fetch ONLY the role column from the database to save memory and bandwidth
+    # Using a set for O(1) lookups
+    applied_roles = {role[0].lower() for role in db.query(Job.role).all()}
+
+    # Check which top roles have NOT been applied to yet
     not_applied = [
-        r for r in top_roles
-        if r["role"].lower() not in applied_roles
+        role_data for role_data in top_roles
+        if role_data["role"].lower() not in applied_roles
     ]
 
     return {
-        "your_skills":        skills_lower,
-        "matched_skills":     matched_skills,
+        "your_skills": skills_lower,
+        "matched_skills": matched_skills,
         "top_recommended_roles": top_roles,
-        "not_applied_yet":    not_applied,
+        "not_applied_yet": not_applied,
         "tip": "Focus on roles in not_applied_yet — these match your skills but you haven't applied yet!"
     }
