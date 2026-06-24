@@ -107,7 +107,7 @@
   </div>
 
   <!-- Login Form -->
-  <div id="login-form">
+  <form id="login-form" onsubmit="event.preventDefault(); doLogin();">
     <div class="mb-3">
       <label class="form-label">Email</label>
       <input type="email" class="form-control" id="login-email" placeholder="you@email.com">
@@ -116,12 +116,12 @@
       <label class="form-label">Password</label>
       <input type="password" class="form-control" id="login-password" placeholder="Your password">
     </div>
-    <button class="btn-main" onclick="doLogin()">Login</button>
+    <button type="submit" class="btn-main">Login</button>
     <div class="error-msg" id="login-error"></div>
-  </div>
+  </form>
 
   <!-- Register Form -->
-  <div id="register-form" style="display:none">
+  <form id="register-form" onsubmit="event.preventDefault(); doRegister();" style="display:none">
     <div class="mb-3">
       <label class="form-label">Full Name</label>
       <input type="text" class="form-control" id="reg-name" placeholder="Your full name">
@@ -134,10 +134,10 @@
       <label class="form-label">Password</label>
       <input type="password" class="form-control" id="reg-password" placeholder="Create a password">
     </div>
-    <button class="btn-main" onclick="doRegister()">Create Account</button>
+    <button type="submit" class="btn-main">Create Account</button>
     <div class="error-msg" id="reg-error"></div>
     <div class="success-msg" id="reg-success"></div>
-  </div>
+  </form>
 </div>
 
 <script>
