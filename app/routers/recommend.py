@@ -319,35 +319,50 @@ SKILL_JOB_MAP = {
     "full stack development": ["Full Stack Developer"]
 }
 
+# --- Helper Functions ---
+
+def _match_skills_to_roles(skills_lower: list[str]) -> tuple[list[str], list[dict]]:
+    """Map skills to job roles and calculate the top 5 matches."""
+    # Find matching job roles from the hardcoded dictionary mapping.
+    matched_skills = [skill for skill in skills_lower if skill in SKILL_JOB_MAP]
+    
+    # Flattening the nested lists of roles.
+    matched_roles = [role for skill in matched_skills for role in SKILL_JOB_MAP[skill]]
+
+    # The Counter elegantly tallies up overlapping roles.
+    role_scores = Counter(matched_roles)
+
+    # We only care about the top 5 matches to keep the UI clean and actionable.
+    top_roles = [{"role": role, "match_score": score} for role, score in role_scores.most_common(5)]
+    
+    return matched_skills, top_roles
+
+
+def _get_unapplied_roles(top_roles: list[dict], db: Session) -> list[dict]:
+    """Filter out roles the user has already applied for."""
+    # Fetching ONLY the 'role' column reduces database bandwidth and memory consumption.
+    applied_roles = {role[0].lower() for role in db.query(Job.role).all()}
+
+    # We don't want to recommend a job role that the user is already actively applying for.
+    return [
+        role_data for role_data in top_roles
+        if role_data["role"].lower() not in applied_roles
+    ]
+
+
 @router.post("/")
 def get_recommendations(skills: list[str], db: Session = Depends(get_db)):
     """
     Recommend job roles based on a user's skillset.
-    Uses a predefined skill-to-role map and filters out roles the user has already applied for.
     """
+    # Normalize input skills to lowercase immediately to prevent casing mismatches.
     skills_lower = [s.lower().strip() for s in skills]
 
-    # Find matching job roles from skill map
-    matched_skills = [skill for skill in skills_lower if skill in SKILL_JOB_MAP]
-    
-    # Flatten the list of roles for matched skills
-    matched_roles = [role for skill in matched_skills for role in SKILL_JOB_MAP[skill]]
+    # 1. Match skills and get top roles
+    matched_skills, top_roles = _match_skills_to_roles(skills_lower)
 
-    # Count frequency of each role to determine the best match
-    role_scores = Counter(matched_roles)
-
-    # Extract the top 5 matching roles
-    top_roles = [{"role": role, "match_score": score} for role, score in role_scores.most_common(5)]
-
-    # Fetch ONLY the role column from the database to save memory and bandwidth
-    # Using a set for O(1) lookups
-    applied_roles = {role[0].lower() for role in db.query(Job.role).all()}
-
-    # Check which top roles have NOT been applied to yet
-    not_applied = [
-        role_data for role_data in top_roles
-        if role_data["role"].lower() not in applied_roles
-    ]
+    # 2. Filter out roles already applied to
+    not_applied = _get_unapplied_roles(top_roles, db)
 
     return {
         "your_skills": skills_lower,

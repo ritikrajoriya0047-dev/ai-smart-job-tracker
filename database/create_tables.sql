@@ -4,19 +4,23 @@
 -- CREATE DATABASE job_tracker;
 
 -- TABLE 1: users
--- Stores registered user accounts
+-- Stores registered user accounts.
+-- We use a dedicated users table to enforce isolation of tenant data.
+-- Email is UNIQUE and indexed to ensure fast lookups during authentication.
 
 CREATE TABLE IF NOT EXISTS users (
     id         SERIAL PRIMARY KEY,
     name       VARCHAR(100) NOT NULL,
     email      VARCHAR(100) UNIQUE NOT NULL,
     password   VARCHAR(200) NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
  
 -- TABLE 2: jobs
--- Stores each user's job applications
+-- Stores each user's job applications.
+-- We use ON DELETE CASCADE on the user_id foreign key so that if a user deletes their account,
+-- all their associated job applications are automatically purged, preventing orphaned data.
 
 CREATE TABLE IF NOT EXISTS jobs (
     id             SERIAL PRIMARY KEY,
@@ -31,7 +35,7 @@ CREATE TABLE IF NOT EXISTS jobs (
     notes          VARCHAR(500),
     date_applied   DATE,
     interview_date DATE,
-    created_at     TIMESTAMP DEFAULT NOW()
+    created_at     TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Status values: Applied | Screening | Interview | Offer | Rejected

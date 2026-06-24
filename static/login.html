@@ -141,92 +141,118 @@
 </div>
 
 <script>
+/**
+ * Switch between the Login and Register tabs in the UI.
+ * @param {string} tab - The tab name to show ('login' or 'register').
+ */
 function showTab(tab) {
-  document.getElementById('login-form').style.display    = tab === 'login'    ? 'block' : 'none';
-  document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
-  document.getElementById('tab-login').classList.toggle('active',    tab === 'login');
+  document.getElementById('login-form').style.display = (tab === 'login') ? 'block' : 'none';
+  document.getElementById('register-form').style.display = (tab === 'register') ? 'block' : 'none';
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
   document.getElementById('tab-register').classList.toggle('active', tab === 'register');
 }
 
+/**
+ * Handle user login by submitting credentials to the backend.
+ */
 async function doLogin() {
-  const email    = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
-  const errEl    = document.getElementById('login-error');
+  const emailInput = document.getElementById('login-email').value.trim();
+  const passwordInput = document.getElementById('login-password').value;
+  const errorElement = document.getElementById('login-error');
 
-  if (!email || !password) {
-    showError(errEl, 'Please fill in all fields');
+  // Basic client-side validation saves a wasteful HTTP roundtrip to the server 
+  // if the user just accidentally clicked the button too early.
+  if (!emailInput || !passwordInput) {
+    showError(errorElement, 'Please fill in all fields');
     return;
   }
 
   try {
-    const resp = await fetch('/auth/login', {
-      method:  'POST',
-      headers: {'Content-Type': 'application/json'},
-      body:    JSON.stringify({ email, password })
+    const response = await fetch('/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: emailInput, password: passwordInput })
     });
-    const data = await resp.json();
+    
+    const data = await response.json();
 
-    if (!resp.ok) {
-      showError(errEl, data.detail || 'Login failed');
+    if (!response.ok) {
+      showError(errorElement, data.detail || 'Login failed');
       return;
     }
 
-    localStorage.setItem('user_name',  data.name);
-    localStorage.setItem('user_email', data.email);
-    localStorage.setItem('user_id',    data.user_id);
+    // Persist session details securely in localStorage. 
+    // We use localStorage instead of cookies here because this is a simple SPA 
+    // and we need to immediately use `data.name` in the UI header across page loads.
+    sessionStorage.setItem('user_name', data.name);
+    sessionStorage.setItem('user_email', data.email);
+    sessionStorage.setItem('user_id', data.user_id);
     window.location.href = '/dashboard';
 
-  } catch(e) {
-    showError(errEl, 'Something went wrong. Try again.');
+  } catch (error) {
+    console.error('Login Error:', error);
+    showError(errorElement, 'Something went wrong. Try again.');
   }
 }
 
+/**
+ * Handle new user registration.
+ * Creates an account and seamlessly redirects the user to the login tab.
+ */
 async function doRegister() {
-  const name     = document.getElementById('reg-name').value.trim();
-  const email    = document.getElementById('reg-email').value.trim();
-  const password = document.getElementById('reg-password').value;
-  const errEl    = document.getElementById('reg-error');
-  const sucEl    = document.getElementById('reg-success');
+  const nameInput = document.getElementById('reg-name').value.trim();
+  const emailInput = document.getElementById('reg-email').value.trim();
+  const passwordInput = document.getElementById('reg-password').value;
+  const errorElement = document.getElementById('reg-error');
+  const successElement = document.getElementById('reg-success');
 
-  if (!name || !email || !password) {
-    showError(errEl, 'Please fill in all fields');
+  if (!nameInput || !emailInput || !passwordInput) {
+    showError(errorElement, 'Please fill in all fields');
     return;
   }
-  if (password.length < 6) {
-    showError(errEl, 'Password must be at least 6 characters');
+  if (passwordInput.length < 6) {
+    showError(errorElement, 'Password must be at least 6 characters');
     return;
   }
 
   try {
-    const resp = await fetch('/auth/register', {
-      method:  'POST',
-      headers: {'Content-Type': 'application/json'},
-      body:    JSON.stringify({ name, email, password })
+    const response = await fetch('/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: nameInput, email: emailInput, password: passwordInput })
     });
-    const data = await resp.json();
+    
+    const data = await response.json();
 
-    if (!resp.ok) {
-      showError(errEl, data.detail || 'Registration failed');
+    if (!response.ok) {
+      showError(errorElement, data.detail || 'Registration failed');
       return;
     }
 
-    errEl.style.display = 'none';
-    sucEl.style.display = 'block';
-    sucEl.textContent   = 'Account created! Switching to login...';
+    // Show success and gently transition to the login tab
+    errorElement.style.display = 'none';
+    successElement.style.display = 'block';
+    successElement.textContent = 'Account created! Switching to login...';
     setTimeout(() => showTab('login'), 1500);
 
-  } catch(e) {
-    showError(errEl, 'Something went wrong. Try again.');
+  } catch (error) {
+    console.error('Registration Error:', error);
+    showError(errorElement, 'Something went wrong. Try again.');
   }
 }
 
-function showError(el, msg) {
-  el.textContent  = msg;
-  el.style.display = 'block';
+/**
+ * Display an error message gracefully.
+ * @param {HTMLElement} element - The DOM element to populate.
+ * @param {string} msg - The error message.
+ */
+function showError(element, msg) {
+  element.textContent = msg;
+  element.style.display = 'block';
 }
 
 // If already logged in go straight to dashboard
-if (localStorage.getItem('user_name')) {
+if (sessionStorage.getItem('user_name')) {
   window.location.href = '/dashboard';
 }
 </script>

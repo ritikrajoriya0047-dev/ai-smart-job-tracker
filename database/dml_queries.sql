@@ -65,12 +65,14 @@ GROUP BY status
 ORDER BY total DESC;
 
 -- Application success rate for a user
+-- WHY: We aggregate this strictly on the database side using SUM(CASE...) 
+-- because pulling thousands of rows into Python to count them would cause severe memory overhead.
 SELECT
     COUNT(*) AS total,
     SUM(CASE WHEN status = 'Interview' THEN 1 ELSE 0 END) AS interviews,
     SUM(CASE WHEN status = 'Offer'     THEN 1 ELSE 0 END) AS offers,
     SUM(CASE WHEN status = 'Rejected'  THEN 1 ELSE 0 END) AS rejected,
-    ROUND(SUM(CASE WHEN status = 'Offer' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS offer_rate_pct
+    ROUND(SUM(CASE WHEN status = 'Offer' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 1) AS offer_rate_pct
 FROM jobs
 WHERE user_id = 1;
 

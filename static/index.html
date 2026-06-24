@@ -365,7 +365,7 @@ let lastSkills  = [];
 
 window.onload = () => {
   applyStoredTheme();
-  const userName = localStorage.getItem('user_name');
+  const userName = sessionStorage.getItem('user_name');
   if (!userName) { window.location.href = '/login-page'; return; }
   document.getElementById('nav-user').textContent = 'Hi, ' + userName + '!';
   notesModal = new bootstrap.Modal(document.getElementById('notesModal'));
@@ -401,9 +401,9 @@ function applyStoredTheme() {
   }
 }
 function logout() {
-  localStorage.removeItem('user_name');
-  localStorage.removeItem('user_email');
-  localStorage.removeItem('user_id');
+  sessionStorage.removeItem('user_name');
+  sessionStorage.removeItem('user_email');
+  sessionStorage.removeItem('user_id');
   window.location.href = '/login-page';
 }
 
@@ -416,7 +416,7 @@ function showSection(name, btn) {
   if (name === 'referral') loadReferrals();
 }
 async function loadUpcomingInterviews() {
-  const userId = localStorage.getItem('user_id');
+  const userId = sessionStorage.getItem('user_id');
   try {
     const data = await fetch(`/analytics/upcoming-interviews?user_id=${userId}`).then(r => r.json());
     const section = document.getElementById('interview-section');
@@ -448,7 +448,7 @@ async function loadUpcomingInterviews() {
   } catch(e) { console.log('Interview section error:', e); }
 }
 async function loadFollowups() {
-  const userId = localStorage.getItem('user_id');
+  const userId = sessionStorage.getItem('user_id');
   try {
     const data = await fetch(`/analytics/followups?user_id=${userId}`).then(r => r.json());
     const badge    = document.getElementById('bell-badge');
@@ -522,32 +522,48 @@ function scrollToJob(jobId) {
 }
 
 // ========== DASHBOARD ==========
+/**
+ * Load and display basic application statistics.
+ */
 async function loadStats() {
-  const userId = localStorage.getItem('user_id');
-  const s = await fetch(`/analytics/?user_id=${userId}`).then(r => r.json());
-  document.getElementById('total').textContent      = s.total;
-  document.getElementById('interviews').textContent = s.by_status.Interview;
-  document.getElementById('offers').textContent     = s.by_status.Offer;
-  document.getElementById('followups').textContent  = s.followup_needed;
+  const userId = sessionStorage.getItem('user_id');
+  try {
+    // We fetch these stats separately from the main jobs list because the backend 
+    // does highly optimized SQL aggregation (`GROUP BY`) to get these numbers. 
+    // This is much faster than pulling 500 jobs into JS and counting them here.
+    const stats = await fetch(`/analytics/?user_id=${userId}`).then(r => r.json());
+    document.getElementById('total').textContent = stats.total;
+    document.getElementById('interviews').textContent = stats.by_status.Interview;
+    document.getElementById('offers').textContent = stats.by_status.Offer;
+    document.getElementById('followups').textContent = stats.followup_needed;
+  } catch (error) {
+    console.error('Failed to load stats:', error);
+  }
 }
 
+/**
+ * Load and display AI predictions, score, and tips.
+ */
 async function loadPredictor() {
   try {
-    const userId = localStorage.getItem('user_id');
-    const p = await fetch(`/predict/?user_id=${userId}`).then(r => r.json());
-    if (!p.total_applications || p.total_applications === 0) {
+    const userId = sessionStorage.getItem('user_id');
+    const predictorData = await fetch(`/predict/?user_id=${userId}`).then(r => r.json());
+    if (!predictorData.total_applications || predictorData.total_applications === 0) {
       document.getElementById('score').textContent = 'N/A';
-      document.getElementById('grade').textContent = 'No data'; return;
+      document.getElementById('grade').textContent = 'No data'; 
+      return;
     }
-    document.getElementById('score').textContent       = p.success_score;
-    document.getElementById('grade').textContent       = p.grade;
-    document.getElementById('best-source').textContent = p.best_source;
-    document.getElementById('predict-tip').textContent = p.tip;
-  } catch(e) { console.log('Predictor error:', e); }
+    document.getElementById('score').textContent = predictorData.success_score;
+    document.getElementById('grade').textContent = predictorData.grade;
+    document.getElementById('best-source').textContent = predictorData.best_source;
+    document.getElementById('predict-tip').textContent = predictorData.tip;
+  } catch (error) { 
+    console.error('Predictor load error:', error); 
+  }
 }
 
 async function loadJobs() {
-  const userId = localStorage.getItem('user_id');
+  const userId = sessionStorage.getItem('user_id');
   allJobs = await fetch(`/jobs/?user_id=${userId}`).then(r => r.json());
   renderJobs(allJobs);
 }
@@ -637,7 +653,8 @@ async function handleStatusChange(jobId, newStatus, userId, selectEl) {
   applyStatusColor(selectEl);
 
   if (newStatus === 'Interview') {
-    // Re-render this row immediately to show the date input
+    // Re-render this row immediately so the user can punch in the interview date.
+    // Without this immediate local update, the user would wonder where to put the date.
     const job = allJobs.find(j => j.id === jobId);
     if (job) job.status = newStatus;
     await updateStatus(jobId, newStatus, userId, true);
@@ -693,26 +710,49 @@ async function deleteJob(jobId) {
   }
 }
 
+/**
+ * Submit a new job application to the backend and refresh the UI.
+ */
 async function addJob() {
-  const userId = parseInt(localStorage.getItem('user_id'));
-  const body = {
-    company:      document.getElementById('company').value,
-    role:         document.getElementById('role').value,
-    location:     document.getElementById('location').value,
-    source:       document.getElementById('source').value,
+  const userId = parseInt(sessionStorage.getItem('user_id'));
+  const bodyData = {
+    company: document.getElementById('company').value.trim(),
+    role: document.getElementById('role').value.trim(),
+    location: document.getElementById('location').value.trim(),
+    source: document.getElementById('source').value,
     date_applied: document.getElementById('date_applied').value || null,
-    status:       "Applied",
-    user_id:      userId
+    status: "Applied",
+    user_id: userId
   };
-  if (!body.company || !body.role) { alert('Company and Role are required!'); return; }
-  await fetch('/jobs/', {
-    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
-  });
-  document.getElementById('company').value      = '';
-  document.getElementById('role').value         = '';
-  document.getElementById('location').value     = '';
-  document.getElementById('date_applied').value = '';
-  loadStats(); loadJobs(); loadPredictor(); loadFollowups();loadUpcomingInterviews();
+  
+  if (!bodyData.company || !bodyData.role) { 
+    alert('Company and Role are required!'); 
+    return; 
+  }
+  
+  try {
+    await fetch('/jobs/', {
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify(bodyData)
+    });
+    
+    // Clear inputs after successful addition
+    document.getElementById('company').value = '';
+    document.getElementById('role').value = '';
+    document.getElementById('location').value = '';
+    document.getElementById('date_applied').value = '';
+    
+    // Refresh dashboard widgets
+    loadStats(); 
+    loadJobs(); 
+    loadPredictor(); 
+    loadFollowups(); 
+    loadUpcomingInterviews();
+  } catch (error) {
+    console.error('Failed to add job:', error);
+    alert('Could not add job. Please try again.');
+  }
 }
 
 // ========== NOTES ==========
@@ -832,22 +872,29 @@ async function getRecommendations() {
 }
 
 // ========== JOB SEARCH ==========
+/**
+ * Search the external job API and display results.
+ */
 async function searchJobs() {
-  const keyword  = document.getElementById('search-keyword').value.trim();
-  const location = document.getElementById('search-location').value.trim() || 'india';
-  if (!keyword) { alert('Please enter a job title or keyword!'); return; }
+  const keyword = document.getElementById('search-keyword').value.trim();
+  const locationInput = document.getElementById('search-location').value.trim() || 'india';
+  
+  if (!keyword) { 
+    alert('Please enter a job title or keyword!'); 
+    return; 
+  }
 
   const resultsDiv = document.getElementById('search-results');
-  const infoDiv    = document.getElementById('search-results-info');
-  const noResults  = document.getElementById('search-no-results');
+  const infoDiv = document.getElementById('search-results-info');
+  const noResults = document.getElementById('search-no-results');
 
   resultsDiv.innerHTML = '<p class="text-muted">Searching...</p>';
   infoDiv.style.display = 'none';
   noResults.style.display = 'none';
 
   try {
-    const data = await fetch(`/search/?q=${encodeURIComponent(keyword)}&location=${encodeURIComponent(location)}`)
-      .then(r => r.json());
+    const url = `/search/?q=${encodeURIComponent(keyword)}&location=${encodeURIComponent(locationInput)}`;
+    const data = await fetch(url).then(r => r.json());
 
     resultsDiv.innerHTML = '';
 
@@ -857,7 +904,7 @@ async function searchJobs() {
     }
 
     infoDiv.style.display = 'block';
-    infoDiv.textContent = `Found ${data.total_found} jobs for "${keyword}" in ${location}`;
+    infoDiv.textContent = `Found ${data.total_found} jobs for "${keyword}" in ${locationInput}`;
 
     data.results.forEach(job => {
       const salary = job.salary_min
@@ -882,9 +929,9 @@ async function searchJobs() {
           </div>
         </div>`;
     });
-  } catch(e) {
+  } catch(error) {
     resultsDiv.innerHTML = '<p class="text-danger">Error searching jobs. Please try again.</p>';
-    console.log('Search error:', e);
+    console.error('Search error:', error);
   }
 }
 
@@ -898,7 +945,7 @@ function openSaveModal(title, company, location, url) {
 }
 
 async function confirmSaveJob() {
-  const userId = parseInt(localStorage.getItem('user_id'));
+  const userId = parseInt(sessionStorage.getItem('user_id'));
   const body = {
     company:      document.getElementById('save-company').value,
     role:         document.getElementById('save-role').value,
@@ -922,7 +969,7 @@ async function confirmSaveJob() {
 
 // ========== REFERRAL TRACKER ==========
 async function loadReferrals() {
-  const userId = localStorage.getItem('user_id');
+  const userId = sessionStorage.getItem('user_id');
   const data = await fetch(`/referrals/?user_id=${userId}`).then(r => r.json());
   const tbody = document.getElementById('referral-body');
   const noRef = document.getElementById('no-referrals');
@@ -962,7 +1009,7 @@ async function loadReferrals() {
 }
 
 async function addReferral() {
-  const userId = parseInt(localStorage.getItem('user_id'));
+  const userId = parseInt(sessionStorage.getItem('user_id'));
   const body = {
     name:     document.getElementById('ref-name').value.trim(),
     company:  document.getElementById('ref-company').value.trim(),
@@ -985,7 +1032,7 @@ async function addReferral() {
 }
 
 async function updateReferralStatus(refId, newStatus, name, company, linkedin, email, notes) {
-  const userId = parseInt(localStorage.getItem('user_id'));
+  const userId = parseInt(sessionStorage.getItem('user_id'));
   await fetch(`/referrals/${refId}`, {
     method:'PUT', headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
