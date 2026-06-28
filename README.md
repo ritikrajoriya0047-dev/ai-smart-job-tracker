@@ -301,11 +301,7 @@ This platform is designed to solve real-world job application tracking, placemen
 
 ---
 
-##  License
-
-Built for educational purposes as part of a 6-week internship.
-
----
-
 > **Live App:** [https://ai-smart-job-tracker.onrender.com/login-page](https://ai-smart-job-tracker.onrender.com/login-page)
+
+
 > **GitHub:** [https://github.com/ritikrajoriya0047-dev/ai-smart-job-tracker](https://github.com/ritikrajoriya0047-dev/ai-smart-job-tracker)
