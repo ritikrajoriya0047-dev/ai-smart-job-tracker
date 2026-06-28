@@ -169,10 +169,10 @@ ai-smart-job-tracker/
 ├── prompts/
 │   └── ai_prompts.md        # All AI prompts used during development
 ├── docs/
-│   └── postman_collection.json
+│   └── index.html
 ├── Procfile                 # Render deployment config
 ├── .env                     # Secrets (not committed)
-├── .env.example             # Template for environment variables
+├── progress_tracking        # Screenshots of project UI  
 ├── .gitignore
 ├── requirements.txt
 └── README.md
