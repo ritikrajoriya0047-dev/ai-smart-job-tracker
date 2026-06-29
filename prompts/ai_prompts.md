@@ -239,9 +239,3 @@ Prepare complete project documentation, presentation slides, PDF, and a record o
 | **Total**                    |       **25**      |
 
 ---
-
-> **Project:** AI Smart Job Tracker
-> **Developed by:** Ritik Kumar
-> **Internship Duration:** 6 Weeks
-> **AI Assistant Used:** Claude (Anthropic)
-> **Live Application:** https://ai-smart-job-tracker.onrender.com
